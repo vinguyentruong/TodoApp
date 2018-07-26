@@ -8,28 +8,133 @@
 
 import UIKit
 
-class DatePickerView: UIViewController {
+typealias DatePickerViewDoneHandler = (DatePickerView, Date) -> ()
+typealias DatePickerViewCancelHandler = (DatePickerView) -> ()
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+class DatePickerView: UIView {
 
-        // Do any additional setup after loading the view.
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
+    @IBOutlet weak var backgroundView: UIView!
+    @IBOutlet weak var datePicker: UIDatePicker!
+    @IBOutlet weak var pickerView: UIView!
+    @IBOutlet weak var navigationBar: UINavigationBar!
+    
+    internal var view: UIView!
+    private var showed = false
+    
+    internal var doneHandler: DatePickerViewDoneHandler?
+    internal var cancelHandler: DatePickerViewCancelHandler?
+    
+    public override init(frame: CGRect) {
+        super.init(frame: frame)
+        
+        initalize()
     }
     
-
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    required public init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        
+        initalize()
     }
-    */
-
+    
+    // MARK: Private method
+    
+    private func initalize() {
+        view = loadViewFromNib()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(view)
+        addConstraint(NSLayoutConstraint(
+            item        : view,
+            attribute   : .top,
+            relatedBy   : .equal,
+            toItem      : self,
+            attribute   : .top,
+            multiplier  : 1.0,
+            constant    : 0
+        ))
+        addConstraint(NSLayoutConstraint(
+            item        : view,
+            attribute   : .bottom,
+            relatedBy   : .equal,
+            toItem      : self,
+            attribute   : .bottom,
+            multiplier  : 1.0,
+            constant    : 0
+        ))
+        addConstraint(NSLayoutConstraint(
+            item        : view,
+            attribute   : .leading,
+            relatedBy   : .equal,
+            toItem      : self,
+            attribute   : .leading,
+            multiplier  : 1.0,
+            constant    : 0
+        ))
+        addConstraint(NSLayoutConstraint(
+            item        : view,
+            attribute   : .trailing,
+            relatedBy   : .equal,
+            toItem      : self,
+            attribute   : .trailing,
+            multiplier  : 1.0,
+            constant    : 0
+        ))
+    }
+    
+    internal static func show(type          : UIDatePickerMode,
+                              title: String,
+                              doneHandler   : @escaping DatePickerViewDoneHandler,
+                              cancelHander  : @escaping DatePickerViewCancelHandler) {
+        guard let window = UIApplication.shared.keyWindow else {
+            return
+        }
+        UIApplication.topViewController()?.view.endEditing(true)
+        let datePickerView = DatePickerView()
+        datePickerView.datePicker.datePickerMode = type
+        datePickerView.navigationBar.topItem?.title = title
+        datePickerView.backgroundView.backgroundColor = UIColor.black
+        datePickerView.backgroundView.alpha = 0
+        window.addSubview(datePickerView)
+        datePickerView.translatesAutoresizingMaskIntoConstraints = false
+        datePickerView.leftAnchor.constraint(equalTo: window.leftAnchor).isActive = true
+        datePickerView.rightAnchor.constraint(equalTo: window.rightAnchor).isActive = true
+        datePickerView.bottomAnchor.constraint(equalTo: window.bottomAnchor).isActive = true
+        datePickerView.heightAnchor.constraint(equalTo: window.heightAnchor).isActive = true
+        datePickerView.pickerView.transform = CGAffineTransform(translationX: 0, y: 250)
+        datePickerView.cancelHandler = { [weak datePickerView] _ in
+            guard let sSelf = datePickerView else {
+                return
+            }
+            UIView.animate(withDuration: 0.33, animations: {
+                sSelf.pickerView.transform = CGAffineTransform(translationX: 0, y: 250)
+                sSelf.backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0)
+            }) { (_) in
+                sSelf.removeFromSuperview()
+                cancelHander(sSelf)
+            }
+        }
+        datePickerView.doneHandler = { [weak datePickerView] view , date in
+            guard let sSelf = datePickerView else {
+                return
+            }
+            UIView.animate(withDuration: 0.33, animations: {
+                sSelf.pickerView.transform = CGAffineTransform(translationX: 0, y: 250)
+                sSelf.backgroundView.backgroundColor = UIColor.black.withAlphaComponent(0)
+            }) { (_) in
+                sSelf.removeFromSuperview()
+                doneHandler(view, date)
+            }
+        }
+        UIView.animate(withDuration: 0.33) {
+            datePickerView.pickerView.transform = CGAffineTransform.identity
+            datePickerView.backgroundView.alpha = 0.5
+        }
+    }
+    
+    @IBAction func cancelAction(_ sender: Any) {
+          cancelHandler?(self)
+    }
+    
+    @IBAction func doneAction(_ sender: Any) {
+          doneHandler?(self, self.datePicker.date)
+    }
 }

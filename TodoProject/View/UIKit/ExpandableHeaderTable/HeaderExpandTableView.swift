@@ -12,14 +12,20 @@ protocol HeaderExpandTableViewDelegate: class {
     func header(_ header: HeaderExpandTableView, toggleSectionArrow toggle: Bool)
 }
 
-class HeaderExpandTableView: UIView {
+class HeaderExpandTableView: UITableViewHeaderFooterView {
     
     internal lazy var titleLabel = UILabel()
     internal lazy var arrowButton = UIButton()
     
     internal weak var delegate: HeaderExpandTableViewDelegate?
     
-    internal var expand: Bool = true
+    internal var expand: Bool = true {
+        didSet {
+            UIView.animate(withDuration: 0.5) {
+                self.arrowButton.layer.setAffineTransform(CGAffineTransform(rotationAngle: self.expand ? 0.0: .pi))
+            }
+        }
+    }
     
     static var identifier: String {
         return String(describing: self)
@@ -30,26 +36,33 @@ class HeaderExpandTableView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         
+        if bounds == CGRect.zero {
+            return
+        }
+        
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         titleLabel.textAlignment = .left
+        titleLabel.font = UIFont(name: "Montserrat-Regular", size: 17)
+//        titleLabel.textColor = UIColor.gray
         
-        arrowButton.setTitle("▽", for: .normal)
+        arrowButton.setImage(#imageLiteral(resourceName: "ic_arrow"), for: .normal)
+        arrowButton.tintColor = UIColor.gray
         arrowButton.addTarget(self, action: #selector(collapseAction(_:)), for: .touchUpInside)
         arrowButton.translatesAutoresizingMaskIntoConstraints = false
         
         addSubview(titleLabel)
         addSubview(arrowButton)
         
-        titleLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 8).isActive = true
+        titleLabel.leftAnchor.constraint(equalTo: self.leftAnchor, constant: 16).isActive = true
         titleLabel.centerYAnchor.constraint(equalTo: self.centerYAnchor, constant: 0).isActive = true
-        titleLabel.rightAnchor.constraint(equalTo: arrowButton.leftAnchor, constant: 8).isActive = true
+        titleLabel.rightAnchor.constraint(equalTo: arrowButton.leftAnchor, constant: 16).isActive = true
         
-        arrowButton.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -8).isActive = true
+        arrowButton.rightAnchor.constraint(equalTo: self.rightAnchor, constant: -16).isActive = true
         arrowButton.centerYAnchor.constraint(equalTo: self.centerYAnchor, constant: 0).isActive = true
         arrowButton.widthAnchor.constraint(equalToConstant: 16).isActive = true
         arrowButton.heightAnchor.constraint(equalToConstant: 16).isActive = true
         
-        backgroundColor = UIColor.gray
+//        contentView.backgroundColor = UIColor.gray
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handelTapGeture)))
     }
     
@@ -65,9 +78,11 @@ class HeaderExpandTableView: UIView {
     
     private func collapseHandel(){
         expand = !expand
-        UIView.animate(withDuration: 0.5) {
-            self.arrowButton.layer.setAffineTransform(CGAffineTransform(rotationAngle: self.expand ? 0.0: .pi))
-        }
+        delegate?.header(self, toggleSectionArrow: expand)
+    }
+    
+    internal func expandHeader(){
+        expand = true
         delegate?.header(self, toggleSectionArrow: expand)
     }
 }

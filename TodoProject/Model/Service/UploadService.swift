@@ -7,3 +7,11 @@
 //
 
 import Foundation
+import Alamofire
+import RxSwift
+
+protocol UploadService: class {
+    
+    func uploadFile(url             : URL,
+                    progressHandler : @escaping Request.ProgressHandler, responseHandler:  @escaping ResponseHandler)
+}

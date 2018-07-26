@@ -10,5 +10,5 @@ import UIKit
 
 struct Configuration {
 
-    internal static let BaseUrl = "http://192.168.1.32:6969/"
+    internal static let BaseUrl = "http://192.168.1.2:6969"
 }

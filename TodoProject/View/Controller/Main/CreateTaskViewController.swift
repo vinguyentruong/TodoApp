@@ -8,13 +8,22 @@
 
 import UIKit
 
-class CreateTaskViewController: UIViewController {
+class CreateTaskViewController: BaseTodoViewController {
 
     //MARK: Property
+    
+    internal var viewModel: CreateTaskViewModel!
+    override var delegate: ViewModelDelegate? {
+        return viewModel
+    }
     
     @IBOutlet weak var tableView: UITableView!
     private var itemTitlesTable = [String]()
     private var cellIdentifies = [NameCell.className, DateTimeCell.className, DescriptionCell.className]
+    private var name = ""
+    private var content = ""
+    private var date: Date? = Date()
+    private var time: Date? = Date()
     
     //MARK: Lifecycle
     
@@ -67,7 +76,11 @@ extension CreateTaskViewController {
     
     @objc
     private func handelDoneAction() {
-        navigationController?.popViewController(animated: true)
+        viewModel.createTask(name: name, date: date, time: time, description: content)
+    }
+    
+    private func validateFields() {
+        
     }
 }
 
@@ -87,7 +100,8 @@ extension CreateTaskViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifies[indexPath.row]) as? BaseTableViewCell {
-            (cell as? DateTimeCell)?.delegate = self
+            (cell as? DateTimeCell)?.configure(defaultDate: Date(), defaultTime: Date())
+            cell.delegate = self
             cell.configTitle(title: itemTitlesTable[indexPath.row])
             return cell
         }
@@ -107,8 +121,10 @@ extension CreateTaskViewController: DateTimeCellDelegate {
             doneHandler : { (picker, date) in
                 
                 button.valueLabel.text = date.dateToString(format: DateFormatter.hh_mm_aa)
+                self.time = date
             }) { (picker) in
                 button.valueLabel.text = nil
+                self.time = nil
             }
     }
     
@@ -119,8 +135,23 @@ extension CreateTaskViewController: DateTimeCellDelegate {
             doneHandler : { (picker, date) in
                 
                 button.valueLabel.text = date.dateToString(format: DateFormatter.yyyy_MM_dd)
+                self.date = date
             }) { (picker) in
                 button.valueLabel.text = nil
+                self.date = nil
             }
+    }
+}
+
+extension CreateTaskViewController: NameCellDelegate {
+    func nameCell(nameValueDidEndChange text: String?) {
+        name = text ?? ""
+    }
+}
+
+extension CreateTaskViewController: DescriptionCellDelegate {
+    
+    func descriptionCell(contentDidEndChange text: String?) {
+        content = text ?? ""
     }
 }

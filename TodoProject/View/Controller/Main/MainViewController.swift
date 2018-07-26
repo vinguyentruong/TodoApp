@@ -8,21 +8,27 @@
 
 import UIKit
 import Material
+import RxSwift
 
-class JobGroup: GroupItemsExpandTable {
+class TaskGroup: GroupItemsExpandTable {
     
     var rowCount: Int {
-        return jobs.count
+        return tasks.count
     }
     
     var sectionTitle: String
     
     var isExpand: Bool = true
     
-    var jobs:[JobModel]!
+    var tasks:[Task]!
     
     init(_ title: String) {
-        jobs = JobModel.getDefault()
+//        tasks = Task.getDefault()
+        sectionTitle = title
+    }
+    
+    init(_ title: String, tasks: [Task]) {
+        self.tasks = tasks
         sectionTitle = title
     }
 }
@@ -35,20 +41,25 @@ struct Path {
 }
 
 
-class MainViewController: UIViewController {
+class MainViewController: BaseTodoViewController {
     
     //MARK: Property
+    internal var viewModel: MainViewModel!
+    override var delegate: ViewModelDelegate? {
+        return viewModel
+    }
     
     @IBOutlet weak var addTaskButton: ImageButton!
     @IBOutlet weak var profileButton: FABButton!
     @IBOutlet weak var tableView: UITableView!
     private var currentOffset: CGFloat = 0
-    private var groups = [GroupItemsExpandTable]()
+    private var groups = [TaskGroup]()
     private var isEditMode = false
     
     //MARK: Lifecycle
     
     override func viewDidLoad() {
+        disposeBag = DisposeBag()
         super.viewDidLoad()
         
         prepareUI()
@@ -60,6 +71,41 @@ class MainViewController: UIViewController {
         super.viewWillAppear(animated)
         
         prepareNavigationBar()
+    }
+    
+    //MARK: Overide methods
+    
+    override func bindData() {
+        viewModel.inprogress
+            .asObservable()
+            .subscribe(onNext: { [weak self] value in
+                guard let sSelf = self else {
+                    return
+                }
+                if !value {
+                    sSelf.tableView.stopFooterLoading()
+                } else {
+                    sSelf.tableView.startFooterLoading()
+                }
+            }
+            ).disposed(by: disposeBag)
+        
+        viewModel.tasks.asDriver().drive(onNext: { [weak self] tasks in
+            guard let sSelf = self else {
+                return
+            }
+            let groups = Dictionary(grouping: tasks, by: { $0.deadline })
+            sSelf.groups = groups
+                            .sorted(by: {$0.key.compare($1.key) == .orderedAscending})
+                            .map { TaskGroup($0.key.dateToString(format: DateFormat.MMM_dd_yyyy_HH_mm_aa.name),
+                                             tasks: $0.value)
+                            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.22, execute: {
+                sSelf.tableView.reloadData()
+            })
+            
+        }).disposed(by: disposeBag)
     }
     
     //MARK: IBAction
@@ -86,8 +132,8 @@ extension MainViewController {
 //        let guesture = UILongPressGestureRecognizer.init(target: self, action: #selector(handleLongPressForEdit))
 //        guesture.minimumPressDuration = 0.2
 //        tableView.addGestureRecognizer(guesture)
-        groups.append(JobGroup("Tuesday 25th April"))
-        groups.append(JobGroup("Wednesday 26th April"))
+//        groups.append(TaskGroup("Tuesday 25th April"))
+//        groups.append(TaskGroup("Wednesday 26th April"))
     }
     
     private func prepareUI() {
@@ -145,7 +191,7 @@ extension MainViewController {
         for section in 0...1 {
             let totalRows = groups[section].rowCount
             for row in 0..<totalRows {
-                (groups[section] as! JobGroup).jobs[row].selected = true
+                groups[section].tasks[row].selected = true
             }
         }
         toolbarItems?.first?.isEnabled = true
@@ -156,7 +202,7 @@ extension MainViewController {
         for section in 0...1 {
             let totalRows = groups[section].rowCount
             for row in 0..<totalRows {
-                (groups[section] as! JobGroup).jobs[row].selected = false
+                groups[section].tasks[row].selected = false
             }
         }
         toolbarItems?.first?.isEnabled = false
@@ -241,9 +287,9 @@ extension MainViewController {
                     return
                 }
                 
-                let newItem = (groups[initialIndexPath.section] as! JobGroup).jobs[initialIndexPath.row]
-                (groups[initialIndexPath.section] as! JobGroup).jobs.remove(at: initialIndexPath.row)
-                (groups[updatingIndexPath.section] as! JobGroup).jobs.insert(newItem, at: updatingIndexPath.row)
+                let newItem = groups[initialIndexPath.section].tasks[initialIndexPath.row]
+                groups[initialIndexPath.section].tasks.remove(at: initialIndexPath.row)
+                groups[updatingIndexPath.section].tasks.insert(newItem, at: updatingIndexPath.row)
                 
                 tableView.moveRow(at: initialIndexPath, to: updatingIndexPath)
                 Path.initialIndexPath = updatingIndexPath
@@ -318,13 +364,12 @@ extension MainViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
         if let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as? TaskCell {
-            guard let group = groups[indexPath.section] as? JobGroup else{
-                return UITableViewCell()
-            }
+            let group = groups[indexPath.section]
             cell.delegate = self
-            let job = group.jobs[indexPath.row]
+            let job = group.tasks[indexPath.row]
             cell.contentView.backgroundColor = job.selected ? UIColor.orange.withAlphaComponent(0.5) : UIColor.white
-            cell.configUI(name: job.name, done: job.done)
+//            cell.configUI(name: job.name, done: job.done)
+            cell.configUI(task: groups[indexPath.section].tasks[indexPath.row])
             let guesture = UILongPressGestureRecognizer.init(target: self, action: #selector(handleLongPressForEdit))
             guesture.minimumPressDuration = 0.4
             cell.addGestureRecognizer(guesture)
@@ -335,10 +380,13 @@ extension MainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         let rowRemoveAction = UITableViewRowAction.init(style: .destructive, title: "Remove") { (row, indexpath) in
-            (self.groups[indexPath.section] as! JobGroup).jobs.remove(at: indexPath.row)
-            tableView.beginUpdates()
-            tableView.deleteRows(at: [indexPath], with: UITableViewRowAnimation.automatic)
-            tableView.endUpdates()
+            let task = self.groups[indexPath.section].tasks[indexPath.row]
+            self.viewModel.deleteTask(task: task) {
+                self.groups[indexPath.section].tasks.remove(at: indexPath.row)
+                tableView.beginUpdates()
+                tableView.deleteRows(at: [indexPath], with: .left)
+                tableView.endUpdates()
+            }
         }
         rowRemoveAction.backgroundColor = UIColor.orange.withAlphaComponent(0.7)
         
@@ -347,21 +395,29 @@ extension MainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         if !isEditMode {
-            let detailVC = UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "JobDetailViewController")
-            self.navigationController?.pushViewController(detailVC, animated: true)
-        } else {
-            guard let group = groups[indexPath.section] as? JobGroup else {
+            guard let detailVC = UIStoryboard.main.getViewController(TaskDetailViewController.self) else {
                 return
             }
-            group.jobs[indexPath.row].selected.toggle()
+            detailVC.assignData(groups[indexPath.section].tasks[indexPath.row].id)
+            self.navigationController?.pushViewController(detailVC, animated: true)
+        } else {
+            let group = groups[indexPath.section]
+            group.tasks[indexPath.row].selected.toggle()
             tableView.reloadRows(at: [indexPath], with: .none)
-            if (group.jobs.map{$0.selected}).contains(true) {
+            if (group.tasks.map{$0.selected}).contains(true) {
                 toolbarItems?.first?.isEnabled = true
             } else {
                 toolbarItems?.first?.isEnabled = false
             }
         }
     }
+    
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        if indexPath.section == groups.count - 1 {
+            viewModel.loadMore()
+        }
+    }
+    
 }
 
 //MARK: Tableview datasource
@@ -409,10 +465,11 @@ extension MainViewController: HeaderExpandTableViewDelegate {
 extension MainViewController: TaskCellDelegate {
     
     func taskCell(cell: TaskCell, didSelectDoneButton button: UIButton) {
-        guard let indexPath = tableView.indexPath(for: cell), let group = groups[indexPath.section] as? JobGroup else {
+        guard let indexPath = tableView.indexPath(for: cell) else {
             return
         }
-        let job = group.jobs[indexPath.row]
+        let group = groups[indexPath.section]
+        let job = group.tasks[indexPath.row]
         job.done.toggle()
         tableView.reloadRows(at: [indexPath], with: .none)
     }

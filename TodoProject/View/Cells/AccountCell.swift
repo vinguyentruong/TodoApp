@@ -8,17 +8,53 @@
 
 import UIKit
 
-class AccountCell: UITableViewCell {
+protocol AccountCellDelegate: BaseCellDelegate {
+    func accountCell(didSelectLogout cell: AccountCell)
+}
 
+class AccountCell: BaseTableViewCell {
+
+    //MARK: Property
+    
+    @IBOutlet weak var eyeButton: UIButton!
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var passwordTextfield: UITextField!
+    
+    //MARK: Overide methods
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
+        eyeButton.setImage(#imageLiteral(resourceName: "ic_eye"), for: .normal)
+        eyeButton.addTarget(self, action: #selector(handleReleaseEvent(event:)), for: UIControlEvents.touchUpOutside)
+        eyeButton.addTarget(self, action: #selector(handleReleaseEvent(event:)), for: UIControlEvents.touchUpInside)
+        eyeButton.addTarget(self, action: #selector(handleTouchDownEvent(event:)), for: UIControlEvents.touchDown)
     }
 
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    override func configTitle(title: String) {
+        titleLabel.text = title
     }
     
+    //MARK: IB Action
+    
+    @IBAction func logoutAction(_ sender: Any) {
+        (delegate as? AccountCellDelegate)?.accountCell(didSelectLogout: self)
+    }
+}
+
+//MARK: Actions
+
+extension AccountCell {
+    
+    @objc
+    private func handleReleaseEvent(event: UIControlEvents) {
+        eyeButton.setImage(#imageLiteral(resourceName: "ic_eye"), for: .normal)
+        passwordTextfield.isSecureTextEntry = true
+    }
+    
+    @objc
+    private func handleTouchDownEvent(event: UIControlEvents) {
+        eyeButton.setImage(#imageLiteral(resourceName: "ic_eye_enable"), for: .normal)
+        passwordTextfield.isSecureTextEntry = false
+    }
 }

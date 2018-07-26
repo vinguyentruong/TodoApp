@@ -7,3 +7,10 @@
 //
 
 import Foundation
+
+extension Bool {
+    
+    internal mutating func toggle() {
+        self = !self
+    }
+}

@@ -7,3 +7,17 @@
 //
 
 import Foundation
+import UIKit
+
+extension UIStoryboard {
+    
+    internal static var main: UIStoryboard {
+        return UIStoryboard(name: "Main", bundle: Bundle.main)
+    }
+    
+    internal func getViewController<T>(_ type: T.Type) -> T? {
+        let identifier = String(describing: type)
+        let viewController = instantiateViewController(withIdentifier: identifier) as? T
+        return viewController
+    }
+}

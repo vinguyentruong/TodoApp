@@ -38,6 +38,9 @@ class LoginViewController: BaseTodoViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        passwordTextfield.text = "11111111"
+        usernameTextfield.text = "tankorbox@gmail.com"
+        isEnableSignInButton.value = true
         navigationController?.isNavigationBarHidden = true
     }
     

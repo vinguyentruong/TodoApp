@@ -7,3 +7,83 @@
 //
 
 import Foundation
+import Swinject
+import SwinjectStoryboard
+
+extension SwinjectStoryboard {
+    
+    @objc class func setup() {
+        Container.loggingFunction = nil
+        registerService()
+        registerStoryboard()
+    }
+    
+    private static func registerService() {
+        let container = SwinjectStoryboard.defaultContainer
+        container.register(OAuthProtocol.self, factory: {_ in
+            OAuthServiceImpl()
+        }).inObjectScope(.container)
+        
+        container.register(ApiHelper.self) { _ in
+            ApiHelper(
+                baseUrl: Configuration.BaseUrl,
+                oauthProtocol: container.resolve(OAuthProtocol.self)
+            )
+        }.inObjectScope(.container)
+        
+        container.register(UploadService.self) { container in
+            UploadServiceImplement(apiHelper: container.resolve(ApiHelper.self)!)
+        }
+        
+        container.register(TodoAppService.self) { container in
+            TodoAppServiceImplement(apiHelper: container.resolve(ApiHelper.self)!)
+        }
+    }
+    
+    private static func registerStoryboard() {
+        let container = SwinjectStoryboard.defaultContainer
+        
+        container.storyboardInitCompleted(LoginViewController.self) { (container, controller) in
+            let viewModel = LoginViewModel(
+                navigator: Navigator(viewController: controller),
+                oauthService: container.resolve(OAuthProtocol.self)!
+            )
+            controller.viewModel = viewModel
+        }
+        
+        container.storyboardInitCompleted(RegisterViewController.self) { (container, controller) in
+            let viewModel = RegisterViewModel(
+                navigator: Navigator(viewController: controller),
+                oauthService: container.resolve(OAuthProtocol.self)!,
+                uploadService: container.resolve(UploadService.self)!
+            )
+            controller.viewModel = viewModel
+        }
+        
+        container.storyboardInitCompleted(ProfileViewController.self) { (container, controller) in
+            let viewModel = ProfileViewModel(
+                navigator: Navigator(viewController: controller),
+                oauthService: container.resolve(OAuthProtocol.self)!,
+                apiHelper: container.resolve(ApiHelper.self)!)
+            controller.viewModel = viewModel
+        }
+        
+        container.storyboardInitCompleted(MainViewController.self) { (container, controller) in
+            let viewModel = MainViewModel(navigator: Navigator(viewController: controller),
+                                          appService: container.resolve(TodoAppService.self)!)
+            controller.viewModel = viewModel
+        }
+        
+        container.storyboardInitCompleted(TaskDetailViewController.self) { (container, controller) in
+            let viewModel = TaskDetailViewModel(navigator: Navigator(viewController: controller),
+                                                appService: container.resolve(TodoAppService.self)!)
+            controller.viewModel = viewModel
+        }
+        
+        container.storyboardInitCompleted(CreateTaskViewController.self) { (container, controller) in
+            let viewModel = CreateTaskViewModel(navigator: Navigator(viewController: controller),
+                                                appService: container.resolve(TodoAppService.self)!)
+            controller.viewModel = viewModel
+        }
+    }
+}

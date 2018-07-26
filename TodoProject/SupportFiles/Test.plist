@@ -3,24 +3,24 @@
 <plist version="1.0">
 <dict>
 	<key>item 0</key>
-	<string>abc</string>
+	<string>Get number rows in UITableView while unit tests- swift? - Stack Overflow</string>
 	<key>item 1</key>
-	<string>Sweep operations were then initiated to shield the local populace from intimidation during upcoming elections. Operation Swift, intended to be the fourth and the last of the 1967 operations in the Quế Sơn Valley, began unofficially on the morning of September 4 when Company D, 1st Battalion, 5th Marines was attacked before dawn by a superior PAVN force while in a night defensive perimeter next to the village of Dong Son</string>
+	<string>Get number rows in UITableView while unit tests- swift? - Stack </string>
 	<key>item 2</key>
-	<string>ddd</string>
+	<string>How to create uitableview with multiple sections in iOS Swift</string>
 	<key>item 3</key>
-	<string>w</string>
+	<string>Swift: func numberOfSections(in tableView: UITableView) -&gt; Int { if ... Then determine the number of rows that should be displayed in ... E.g. if section one is active, count the items at position one of the array (sectionItems).</string>
 	<key>item 4</key>
-	<string>e</string>
+	<string>This article is part of a collection of articles about Swift Basics, where I try to ... In this short guide, you will find out how to create a UITableView</string>
 	<key>item 5</key>
-	<string>r</string>
+	<string>Everything you need to know about iOS UITableView</string>
 	<key>item 6</key>
 	<string>Sweep operations were then init the village of Dong Son sfeww</string>
 	<key>item 7</key>
-	<string>n</string>
+	<string>override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -&gt; Int {. return self.pageManager.dataArr.count. }.</string>
 	<key>item 8</key>
-	<string>Swed the local populace from intimidation during upcoming elections. Operation Swift, intended to be the fourth and the last of the 1967 operations in the Quế Sơn Valley, began unofficially on the morning of September 4 when Company D, 1st Battalion, 5th Marines was attacked before dawn by a superior PAVN force while in a night defensive perimeter next to the village of Dong Son</string>
+	<string>Yt will then save the row that represents this contact in the table. ..... for working with local data, and is used by many apps and games.</string>
 	<key>item 10</key>
-	<string>k</string>
+	<string>There are many cases when Objective-C, C# and Swift share similar ... If you would like to follow along, open Xcode, select Get started with a ..... select a single view application in the iOS section and click next. ... The first method defines the number of rows in the table and the second displays the data.</string>
 </dict>
 </plist>

@@ -8,17 +8,31 @@
 
 import UIKit
 
-class DescriptionCell: UITableViewCell {
+protocol DescriptionCellDelegate: BaseCellDelegate {
+    
+    func descriptionCell(contentDidEndChange text: String?)
+}
 
+class DescriptionCell: BaseTableViewCell {
+
+    @IBOutlet weak var descriptionContentView: CustomTextView!
+    @IBOutlet weak var titleLabel: UILabel!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+        descriptionContentView.valueChanged = { [weak self] textView in
+            guard let sSelf = self else {
+                return
+            }
+            (sSelf.delegate as? DescriptionCellDelegate)?.descriptionCell(contentDidEndChange: textView.text)
+        }
     }
     
+    override func configTitle(title: String) {
+        titleLabel.text = title
+    }
+    
+    func configure(description: String?) {
+        descriptionContentView.text = description
+    }
 }

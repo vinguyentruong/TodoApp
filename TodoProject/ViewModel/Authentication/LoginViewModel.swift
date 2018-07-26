@@ -9,6 +9,7 @@
 import Foundation
 import RxCocoa
 import RxSwift
+import SpringIndicator
 
 class LoginViewModel: BaseViewModel {
     
@@ -31,15 +32,20 @@ class LoginViewModel: BaseViewModel {
     //MARK: internal method
     
     internal func login(email: String, password: String) {
+        navigator.viewController?.view.startAnimation(attribute: SpringIndicator.lagreAndCenter)
         navigator.beginIgnoringEvent()
         oauthService
             .login(email: email, password: password)
             .observeOn(MainScheduler.instance)
             .subscribe(
-                onNext: { [weak self] data in guard let sSelf = self else {return}
+                onNext: { [weak self] data in
+                    guard let sSelf = self else {
+                        return
+                    }
                     OAuthToken.default.update(oauthToken: data)
                     sSelf.loginSuccess.value = true
                     sSelf.navigator.endIgnoringEvent()
+                    sSelf.navigator.viewController?.view.stopAnimation()
                 },
                 onError: { [weak self] error in
                     guard let sSelf = self else {
@@ -47,6 +53,7 @@ class LoginViewModel: BaseViewModel {
                     }
                     sSelf.loginSuccess.value = false
                     sSelf.navigator.endIgnoringEvent()
+                    sSelf.navigator.viewController?.view.stopAnimation()
                     sSelf.navigator.showAlert(title: "Error",
                                               message: error.localizedDescription,
                                               negativeTitle: "Ok")

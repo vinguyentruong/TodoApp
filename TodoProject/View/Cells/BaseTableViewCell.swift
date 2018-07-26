@@ -8,17 +8,37 @@
 
 import UIKit
 
+protocol BaseCellDelegate: class {
+    
+}
+
 class BaseTableViewCell: UITableViewCell {
 
+    @IBOutlet weak var containerView: UIView!
+    internal weak var delegate: BaseCellDelegate?
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        
+        containerView.layoutIfNeeded()
+        let shadowPath = UIBezierPath(rect: containerView.bounds)
+        containerView.layer.shadowOffset = CGSize(width: 0.2, height: 0.2)
+        containerView.layer.shadowColor = UIColor.black.cgColor
+        containerView.layer.shadowOpacity = 0.1
+        
+        containerView.layer.shadowPath = shadowPath.cgPath
+        containerView.clipsToBounds = true
+        containerView.layer.masksToBounds = false
+        containerView.layer.cornerRadius = 8
+    }
+    
+    internal func configTitle(title: String) {
+        //
     }
 
 }

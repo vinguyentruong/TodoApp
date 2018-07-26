@@ -8,17 +8,20 @@
 
 import UIKit
 
-class OptionCell: UITableViewCell {
+class OptionCell: BaseTableViewCell {
 
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var themeButton: ValueButton!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
+        themeButton.titleLabel.text = "Theme"
+        themeButton.valueLabel.text = "Light"
     }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    
+    override func configTitle(title: String) {
+        titleLabel.text = title
     }
     
 }

@@ -6,4 +6,11 @@
 //  Copyright © 2018 David Nguyen Truong. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+extension UIView {
+    
+    static var nib: UINib {
+        return UINib(nibName: className, bundle: nil)
+    }
+}

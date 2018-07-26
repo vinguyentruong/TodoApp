@@ -7,15 +7,22 @@
 //
 
 import UIKit
+import RxSwift
 
-class TaskDetailViewController: UIViewController {
+class TaskDetailViewController: BaseTodoViewController {
 
     //MARK: Property
+    internal var viewModel: TaskDetailViewModel!
+    override var delegate: ViewModelDelegate? {
+        return viewModel
+    }
     
+    @IBOutlet weak var doneSwitch: UISwitch!
     @IBOutlet weak var rowDoneView: UIView!
     @IBOutlet weak var tableView: UITableView!
     private var itemTitlesTable = [String]()
     private var cellIdentifies = [NameCell.className, DateTimeCell.className, DescriptionCell.className]
+    private var task: Task?
     
     //MARK: Lifecycle
     
@@ -38,6 +45,20 @@ class TaskDetailViewController: UIViewController {
         super.viewWillAppear(animated)
         
         navigationController?.isNavigationBarHidden = false
+    }
+    
+    //MARK: Overide methods
+    
+    override func bindData() {
+        disposeBag = DisposeBag()
+        viewModel.task.asDriver().drive(onNext: { [weak self] task in
+            guard let sSelf = self else {
+                return
+            }
+            sSelf.doneSwitch.isOn = task?.done ?? false
+            sSelf.task = task
+            sSelf.tableView.reloadData()
+        }).disposed(by: disposeBag)
     }
 }
 
@@ -99,6 +120,9 @@ extension TaskDetailViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifies[indexPath.row]) as? BaseTableViewCell {
             (cell as? DateTimeCell)?.delegate = self
+            (cell as? DateTimeCell)?.configure(defaultDate: task?.deadline, defaultTime: task?.deadline)
+            (cell as? NameCell)?.configure(name: self.task?.name)
+            (cell as? DescriptionCell)?.configure(description: task?.content)
             cell.configTitle(title: itemTitlesTable[indexPath.row])
             return cell
         }

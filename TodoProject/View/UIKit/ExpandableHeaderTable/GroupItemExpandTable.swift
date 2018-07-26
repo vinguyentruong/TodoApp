@@ -9,7 +9,8 @@
 import Foundation
 
 protocol GroupItemsExpandTable: class {
-    var rowCount: Int{ get }
-    var sectionTitle: String{ get }
-    var isCollapsed: Bool{ get set }
+    
+    var rowCount: Int { get }
+    var sectionTitle: String { get }
+    var isExpand: Bool { get set }
 }

@@ -8,17 +8,37 @@
 
 import UIKit
 
-class NameCell: UITableViewCell {
+protocol NameCellDelegate: BaseCellDelegate {
+    func nameCell(nameValueDidEndChange text: String?)
+}
 
+class NameCell: BaseTableViewCell {
+
+    @IBOutlet weak var titleLabel: UILabel!
+    @IBOutlet weak var nameTextfield: UITextField!
+    
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+        
+        nameTextfield.addTarget(self, action: #selector(nameDidEndChange), for: UIControlEvents.editingChanged)
     }
     
+    override func configTitle(title: String) {
+        titleLabel.text = title
+    }
+    
+    func configure(name: String?) {
+        nameTextfield.placeholder = "Name"
+        nameTextfield.text = name
+        
+    }
 }
+
+extension NameCell {
+    
+    @objc
+    private func nameDidEndChange() {
+        (delegate as? NameCellDelegate)?.nameCell(nameValueDidEndChange: nameTextfield.text)
+    }
+}
+

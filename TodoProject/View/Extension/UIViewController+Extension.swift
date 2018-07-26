@@ -6,4 +6,12 @@
 //  Copyright © 2018 David Nguyen Truong. All rights reserved.
 //
 
-import Foundation
+import UIKit
+
+extension UIViewController {
+    
+    internal static var className: String {
+        return String(describing: self)
+    }
+}
+

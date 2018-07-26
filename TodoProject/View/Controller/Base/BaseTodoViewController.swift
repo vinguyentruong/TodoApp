@@ -6,4 +6,26 @@
 //  Copyright © 2018 David Nguyen Truong. All rights reserved.
 //
 
-import Foundation
+import UIKit
+import RxCocoa
+import RxSwift
+
+class BaseTodoViewController: MVVMViewController {
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        bindData()
+        bindAction()
+    }
+    
+    @objc
+    internal func bindData() {
+        //
+    }
+    
+    @objc
+    internal func bindAction() {
+        //
+    }
+}

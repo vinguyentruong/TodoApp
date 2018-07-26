@@ -14,8 +14,9 @@ class RegisterViewController: BaseTodoViewController {
 
     //MARK: Property
     
+    internal var viewModel: RegisterViewModel!
     override var delegate: ViewModelDelegate? {
-        return nil
+        return viewModel
     }
     
     @IBOutlet weak var confirmPasswordTextfield: TextField!
@@ -60,8 +61,8 @@ class RegisterViewController: BaseTodoViewController {
                     sSelf.nameTextfield.detail = nil
                 }
             }
-            )
-            .disposed(by: disposeBag)
+        )
+        .disposed(by: disposeBag)
         
         emailTextfield
             .rx
@@ -76,9 +77,9 @@ class RegisterViewController: BaseTodoViewController {
                 } else {
                     sSelf.emailTextfield.detail = nil
                 }
-                }
-            )
-            .disposed(by: disposeBag)
+            }
+        )
+        .disposed(by: disposeBag)
         
         passwordTextfield
             .rx
@@ -93,9 +94,9 @@ class RegisterViewController: BaseTodoViewController {
                 } else {
                     sSelf.passwordTextfield.detail = nil
                 }
-                }
-            )
-            .disposed(by: disposeBag)
+            }
+        )
+        .disposed(by: disposeBag)
         
         confirmPasswordTextfield
             .rx
@@ -111,8 +112,23 @@ class RegisterViewController: BaseTodoViewController {
                     sSelf.confirmPasswordTextfield.detail = nil
                 }
             }
-            )
-            .disposed(by: disposeBag)
+        )
+        .disposed(by: disposeBag)
+        
+        viewModel.registerSuccess
+            .asDriver()
+            .drive(onNext: { [weak self] success in
+                guard let sSelf = self else {
+                    return
+                }
+                if success {
+                    sSelf.viewModel.navigator.showAlert(title: "Success", message: "Signup success.", negativeTitle: "Ok", negativeHandler: { (_) in
+                        sSelf.navigationController?.popViewController(animated: true)
+                    })
+                }
+            }
+        )
+        .disposed(by: disposeBag)
         
         self.disposeBag = disposeBag
         
@@ -167,7 +183,7 @@ class RegisterViewController: BaseTodoViewController {
             passwordTextfield.detail = nil
         }
         if isValid {
-//            viewModel.signUp()
+            viewModel.signUp(displayName: name, email: email, password: password)
         }
     }
     
@@ -220,6 +236,7 @@ extension RegisterViewController: UIImagePickerControllerDelegate, UINavigationC
             return
         }
         self.avatarImageView.image = image
+        viewModel.uploadAvatar(image: image)
         dismiss(animated: true, completion: nil)
     }
     

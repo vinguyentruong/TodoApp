@@ -7,3 +7,18 @@
 //
 
 import Foundation
+import RxSwift
+
+protocol TodoAppService: class {
+    
+    func creatTask(task: Task) -> Observable<Task>
+    func getTasks(page: Int, limit: Int) -> Observable<[Task]>
+    func getTaskDetail(taskID: String) -> Observable<Task>
+//    func updateTask(_ task: Task) -> Observable<Task>
+//    func updateTasks(_ tasks: [Task]) -> Observable<[Task]>
+    func deleteTask(_ task: Task) -> Observable<Task>
+//    func deleteTasks(_ tasks: [Task]) -> Observable<[Task]>
+    
+//    func getUser() -> Observable<User>
+//    func updateUser(_ user: User) -> Observable<User>
+}

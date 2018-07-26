@@ -6,4 +6,36 @@
 //  Copyright © 2018 David Nguyen Truong. All rights reserved.
 //
 
-import Foundation
+import UIKit
+import SpringIndicator
+
+extension UITableView {
+    
+    internal func startFooterLoading() {
+        print("loading")
+        for subView in tableFooterView?.subviews ?? [] {
+            if subView is SpringIndicator {
+                return
+            }
+        }
+        let view = UIView(frame: CGRect(origin: CGPoint.zero, size: CGSize(width: 25, height: 25)))
+        let indicator = SpringIndicator(frame: CGRect(origin: .zero, size: CGSize(width: 25, height: 25)))
+        indicator.lineColor = .black
+        view.layout(indicator)
+            .centerVertically()
+            .centerHorizontally()
+            .width(25)
+            .height(25)
+        tableFooterView = view
+        indicator.start()
+    }
+    
+    internal func stopFooterLoading() {
+
+        for subView in tableFooterView?.subviews ?? [] {
+            if let indicator = subView as? SpringIndicator {
+                indicator.removeFromSuperview()
+            }
+        }
+    }
+}

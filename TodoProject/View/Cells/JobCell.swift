@@ -26,7 +26,7 @@ class JobCell: UITableViewCell {
     
     //MARK: internal method
     
-    internal func configure(job: JobModel){
+    internal func configure(job: Task){
         jobName.text = job.name
     }
 

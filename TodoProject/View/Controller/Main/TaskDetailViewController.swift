@@ -8,6 +8,8 @@
 
 import UIKit
 import RxSwift
+import SpringIndicator
+import Material
 
 class TaskDetailViewController: BaseTodoViewController {
 
@@ -22,11 +24,15 @@ class TaskDetailViewController: BaseTodoViewController {
     @IBOutlet weak var tableView: UITableView!
     private var itemTitlesTable = [String]()
     private var cellIdentifies = [NameCell.className, DateTimeCell.className, DescriptionCell.className]
-    private var task: Task?
+    private var name = ""
+    private var content = ""
+    private var date: Date? = Date()
+    private var time: Date? = Date()
     
     //MARK: Lifecycle
     
     override func viewDidLoad() {
+        disposeBag = DisposeBag()
         super.viewDidLoad()
         
         if let path = Bundle.main.url(forResource: "TaskProperties", withExtension: "plist") {
@@ -49,14 +55,33 @@ class TaskDetailViewController: BaseTodoViewController {
     
     //MARK: Overide methods
     
+    override func bindAction() {
+        viewModel
+            .inprogress
+            .asObservable()
+            .subscribe(onNext: { [weak self] value in
+                guard let sSelf = self else {
+                    return
+                }
+                if value {
+                    sSelf.view.startAnimation(attribute: SpringIndicator.lagreAndCenter)
+                } else {
+                    sSelf.view.stopAnimation()
+                }
+            }
+        ).disposed(by: disposeBag)
+    }
+    
     override func bindData() {
-        disposeBag = DisposeBag()
         viewModel.task.asDriver().drive(onNext: { [weak self] task in
             guard let sSelf = self else {
                 return
             }
-            sSelf.doneSwitch.isOn = task?.done ?? false
-            sSelf.task = task
+            sSelf.doneSwitch.isOn = task.status == .done
+            sSelf.name = task.name
+            sSelf.date = task.deadline
+            sSelf.time = task.deadline
+            sSelf.content = task.content
             sSelf.tableView.reloadData()
         }).disposed(by: disposeBag)
     }
@@ -90,6 +115,8 @@ extension TaskDetailViewController {
     
     private func prepareNavigationBar() {
         title = "Task detail"
+        let rightBarButton = UIBarButtonItem.init(title: "Save", style: .done, target: self, action: #selector(handleSave))
+        navigationItem.rightBarButtonItem = rightBarButton
     }
 }
 
@@ -98,8 +125,23 @@ extension TaskDetailViewController {
 extension TaskDetailViewController {
     
     @objc
-    private func handelDoneAction() {
-        navigationController?.popViewController(animated: true)
+    private func handleSave() {
+        guard
+            let date = date,
+            let time = time,
+            let deadline = DateHelper.shared.combineDateWithTime(date: date, time: time),
+            !name.trimmed.isEmpty else {
+                viewModel.navigator.showAlert(
+                    title           : "Error",
+                    message         : "You must fill in all of the fields!",
+                    negativeTitle   : "Ok")
+            return
+        }
+        viewModel.updateTask(
+            name        : name,
+            deadline    : deadline,
+            description : content,
+            isDone    : doneSwitch.isOn)
     }
 }
 
@@ -119,11 +161,9 @@ extension TaskDetailViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifies[indexPath.row]) as? BaseTableViewCell {
-            (cell as? DateTimeCell)?.delegate = self
-            (cell as? DateTimeCell)?.configure(defaultDate: task?.deadline, defaultTime: task?.deadline)
-            (cell as? NameCell)?.configure(name: self.task?.name)
-            (cell as? DescriptionCell)?.configure(description: task?.content)
-            cell.configTitle(title: itemTitlesTable[indexPath.row])
+            let task = viewModel.task.value
+            cell.delegate = self
+            cell.configure(title: itemTitlesTable[indexPath.row], task: task)
             return cell
         }
         return UITableViewCell()
@@ -139,10 +179,11 @@ extension TaskDetailViewController: DateTimeCellDelegate {
             type        : .time,
             title       : "Time",
             doneHandler : { (picker, date) in
-                
                 button.valueLabel.text = date.dateToString(format: DateFormatter.hh_mm_aa)
+                self.time = date
             }) { (picker) in
                 button.valueLabel.text = nil
+                self.time = nil
             }
     }
     
@@ -151,10 +192,25 @@ extension TaskDetailViewController: DateTimeCellDelegate {
             type: .date,
             title: "Date",
             doneHandler: { (picker, date) in
-                
                 button.valueLabel.text = date.dateToString(format: DateFormatter.yyyy_MM_dd)
+                self.date = date
             }) { (picker) in
                 button.valueLabel.text = nil
+                self.date = nil
             }
+    }
+}
+
+extension TaskDetailViewController: NameCellDelegate {
+    
+    func nameCell(nameValueDidEndChange textField: TextField) {
+        name = textField.text ?? ""
+    }
+}
+
+extension TaskDetailViewController: DescriptionCellDelegate {
+    
+    func descriptionCell(contentDidEndChange text: String?) {
+        content = text ?? ""
     }
 }

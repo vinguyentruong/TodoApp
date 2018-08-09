@@ -11,6 +11,9 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
+        <array key="Montserrat-Regular.ttf">
+            <string>Montserrat-Regular</string>
+        </array>
         <array key="Montserrat-SemiBold.ttf">
             <string>Montserrat-SemiBold</string>
         </array>
@@ -41,28 +44,35 @@
                                     <action selector="checkAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="8Yd-eY-lum"/>
                                 </connections>
                             </button>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bMf-Nf-oIv">
-                                <rect key="frame" x="56" y="31" width="148" height="17.5"/>
-                                <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="14"/>
-                                <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rjx-Ea-xWI" customClass="FlatButton" customModule="Material">
-                                <rect key="frame" x="220" y="31" width="16" height="16"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="d3c-2g-pSQ">
+                                <rect key="frame" x="56" y="20.5" width="180" height="39"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7Fu-KS-an5">
+                                        <rect key="frame" x="0.0" y="25.5" width="180" height="13.5"/>
+                                        <fontDescription key="fontDescription" name="Montserrat-Regular" family="Montserrat" pointSize="11"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bMf-Nf-oIv">
+                                        <rect key="frame" x="0.0" y="0.0" width="180" height="17.5"/>
+                                        <fontDescription key="fontDescription" name="Montserrat-SemiBold" family="Montserrat" pointSize="14"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="16" id="KKc-q2-jL8"/>
-                                    <constraint firstAttribute="height" constant="16" id="t5x-f4-uBr"/>
+                                    <constraint firstItem="7Fu-KS-an5" firstAttribute="top" secondItem="bMf-Nf-oIv" secondAttribute="bottom" constant="8" id="9Ee-fM-2Rw"/>
+                                    <constraint firstAttribute="trailing" secondItem="bMf-Nf-oIv" secondAttribute="trailing" id="9Xt-ZP-63f"/>
+                                    <constraint firstAttribute="bottom" secondItem="7Fu-KS-an5" secondAttribute="bottom" id="Cc7-xy-5vY"/>
+                                    <constraint firstItem="7Fu-KS-an5" firstAttribute="leading" secondItem="bMf-Nf-oIv" secondAttribute="leading" id="Rpj-Yl-eq2"/>
+                                    <constraint firstItem="7Fu-KS-an5" firstAttribute="trailing" secondItem="bMf-Nf-oIv" secondAttribute="trailing" id="hlQ-L0-i6y"/>
+                                    <constraint firstItem="bMf-Nf-oIv" firstAttribute="leading" secondItem="d3c-2g-pSQ" secondAttribute="leading" id="n9d-xQ-NyF"/>
+                                    <constraint firstItem="bMf-Nf-oIv" firstAttribute="top" secondItem="d3c-2g-pSQ" secondAttribute="top" id="qDB-UZ-oM1"/>
                                 </constraints>
-                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <state key="normal" image="ic_pencil"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="backgroundColor">
-                                        <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                            </button>
+                            </view>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kas-4o-Llf" customClass="FlatButton" customModule="Material">
-                                <rect key="frame" x="252" y="31" width="16" height="16"/>
+                                <rect key="frame" x="252" y="32" width="16" height="16"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="16" id="9cF-4X-dkq"/>
                                     <constraint firstAttribute="width" constant="16" id="uZg-FI-fjQ"/>
@@ -74,20 +84,21 @@
                                         <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="deleteAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="llR-3o-EBk"/>
+                                </connections>
                             </button>
                         </subviews>
                         <color key="backgroundColor" red="0.46202266219999999" green="0.83828371759999998" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
-                            <constraint firstItem="bMf-Nf-oIv" firstAttribute="centerY" secondItem="Z7T-9m-IJa" secondAttribute="centerY" id="4ME-5A-Hya"/>
-                            <constraint firstItem="bMf-Nf-oIv" firstAttribute="leading" secondItem="Z7T-9m-IJa" secondAttribute="trailing" constant="16" id="7tG-Jm-1XP"/>
+                            <constraint firstItem="d3c-2g-pSQ" firstAttribute="leading" secondItem="Z7T-9m-IJa" secondAttribute="trailing" constant="16" id="1bf-nE-yot"/>
+                            <constraint firstItem="kas-4o-Llf" firstAttribute="centerY" secondItem="d3c-2g-pSQ" secondAttribute="centerY" id="7Ad-G5-VlR"/>
                             <constraint firstAttribute="trailing" secondItem="kas-4o-Llf" secondAttribute="trailing" constant="20" id="As4-MU-hKN"/>
-                            <constraint firstItem="rjx-Ea-xWI" firstAttribute="leading" secondItem="bMf-Nf-oIv" secondAttribute="trailing" constant="16" id="Bzh-bo-0J2"/>
+                            <constraint firstItem="kas-4o-Llf" firstAttribute="leading" secondItem="d3c-2g-pSQ" secondAttribute="trailing" constant="16" id="GD6-8y-Uxj"/>
                             <constraint firstItem="Z7T-9m-IJa" firstAttribute="leading" secondItem="9Qe-8k-7g1" secondAttribute="leading" constant="20" id="PI9-Th-hGR"/>
                             <constraint firstItem="Z7T-9m-IJa" firstAttribute="centerY" secondItem="9Qe-8k-7g1" secondAttribute="centerY" id="U6g-1T-fWF"/>
-                            <constraint firstItem="kas-4o-Llf" firstAttribute="leading" secondItem="rjx-Ea-xWI" secondAttribute="trailing" constant="16" id="WpA-za-xzo"/>
-                            <constraint firstItem="kas-4o-Llf" firstAttribute="centerY" secondItem="rjx-Ea-xWI" secondAttribute="centerY" id="dtF-Ik-HcY"/>
-                            <constraint firstItem="rjx-Ea-xWI" firstAttribute="centerY" secondItem="Z7T-9m-IJa" secondAttribute="centerY" id="g2t-8A-edO"/>
                             <constraint firstItem="Z7T-9m-IJa" firstAttribute="top" relation="greaterThanOrEqual" secondItem="9Qe-8k-7g1" secondAttribute="topMargin" constant="16" id="iUp-Da-Xgm"/>
+                            <constraint firstItem="d3c-2g-pSQ" firstAttribute="centerY" secondItem="Z7T-9m-IJa" secondAttribute="centerY" id="tSF-I6-lYL"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -101,6 +112,7 @@
             <viewLayoutGuide key="safeArea" id="njF-e1-oar"/>
             <connections>
                 <outlet property="containerView" destination="9Qe-8k-7g1" id="2em-6P-cde"/>
+                <outlet property="dateLabel" destination="7Fu-KS-an5" id="UE5-Z1-Rvq"/>
                 <outlet property="doneButton" destination="Z7T-9m-IJa" id="N6S-YT-sBm"/>
                 <outlet property="nameLabel" destination="bMf-Nf-oIv" id="I4Q-PP-wSB"/>
             </connections>
@@ -110,7 +122,6 @@
     <resources>
         <image name="ic_done" width="25" height="25"/>
         <image name="ic_not_done" width="27" height="27"/>
-        <image name="ic_pencil" width="25" height="25"/>
         <image name="ic_trash" width="22" height="25"/>
     </resources>
 </document>

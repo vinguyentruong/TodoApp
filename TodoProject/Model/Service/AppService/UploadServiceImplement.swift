@@ -2,7 +2,7 @@
 //  UploadServiceImplement.swift
 //  TodoProject
 //
-//  Created by David Nguyen Truong on 7/23/18.
+//  Created by David Nguyen Truong on 7/23/18./Users/macintosh/Documents/project/TodoProject/TodoProject/Model/Service/UploadService.swift
 //  Copyright © 2018 David Nguyen Truong. All rights reserved.
 //
 
@@ -16,11 +16,13 @@ class UploadServiceImplement: RestService {
 
 extension UploadServiceImplement: UploadService {
     
-    func uploadFile(url: URL, progressHandler: @escaping Request.ProgressHandler, responseHandler: @escaping ResponseHandler) {
+    func uploadFile(url             : URL,
+                    progressHandler : @escaping Request.ProgressHandler,
+                    responseHandler : @escaping ResponseHandler) {
         let parameters = ["file": url]
         self.apiHelper.upload (
                 url                 : "\(Configuration.BaseUrl)/api/users/upload-avatar",
-                parameters: parameters,
+                parameters          : parameters,
                 headerHander        : nil,
                 progressHandler     : { (progress) in
                     print(progress.fractionCompleted)

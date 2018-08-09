@@ -50,3 +50,13 @@ extension String {
         return true
     }
 }
+
+extension String {
+    
+    func subString(from: Int, offset: Int)-> String {
+        let start = self.index(self.startIndex, offsetBy: from)
+        let end = self.index(self.endIndex, offsetBy: -self.count + offset)
+        let range = start..<end
+        return String(self[range])
+    }
+}

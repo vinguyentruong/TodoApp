@@ -14,7 +14,7 @@ protocol OAuthProtocol: class {
     func login(email            : String,
                password         : String) -> Observable<OAuthToken>
     
-    func logout(email: String) -> Observable<Error?>
+    func logout() -> Observable<Bool>
     
     func resgister(displayName      : String,
                    email            : String,

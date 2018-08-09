@@ -15,15 +15,11 @@ class TaskGroup: GroupItemsExpandTable {
     var rowCount: Int {
         return tasks.count
     }
-    
     var sectionTitle: String
-    
     var isExpand: Bool = true
-    
     var tasks:[Task]!
     
     init(_ title: String) {
-//        tasks = Task.getDefault()
         sectionTitle = title
     }
     
@@ -44,22 +40,23 @@ struct Path {
 class MainViewController: BaseTodoViewController {
     
     //MARK: Property
+    
     internal var viewModel: MainViewModel!
     override var delegate: ViewModelDelegate? {
         return viewModel
     }
-    
+    @IBOutlet weak var calendarPickerView: CalendarPickerView!
     @IBOutlet weak var addTaskButton: ImageButton!
     @IBOutlet weak var profileButton: FABButton!
     @IBOutlet weak var tableView: UITableView!
     private var currentOffset: CGFloat = 0
-    private var groups = [TaskGroup]()
     private var isEditMode = false
     
     //MARK: Lifecycle
     
     override func viewDidLoad() {
         disposeBag = DisposeBag()
+        
         super.viewDidLoad()
         
         prepareUI()
@@ -84,28 +81,14 @@ class MainViewController: BaseTodoViewController {
                 }
                 if !value {
                     sSelf.tableView.stopFooterLoading()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.22, execute: {
+                        sSelf.tableView.reloadData()
+                    })
                 } else {
                     sSelf.tableView.startFooterLoading()
                 }
             }
             ).disposed(by: disposeBag)
-        
-        viewModel.tasks.asDriver().drive(onNext: { [weak self] tasks in
-            guard let sSelf = self else {
-                return
-            }
-            let groups = Dictionary(grouping: tasks, by: { $0.deadline })
-            sSelf.groups = groups
-                            .sorted(by: {$0.key.compare($1.key) == .orderedAscending})
-                            .map { TaskGroup($0.key.dateToString(format: DateFormat.MMM_dd_yyyy_HH_mm_aa.name),
-                                             tasks: $0.value)
-                            }
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.22, execute: {
-                sSelf.tableView.reloadData()
-            })
-            
-        }).disposed(by: disposeBag)
     }
     
     //MARK: IBAction
@@ -138,6 +121,8 @@ extension MainViewController {
     
     private func prepareUI() {
         UIApplication.shared.statusBarView?.backgroundColor = UIColor.white
+        calendarPickerView.delegate = self
+        calendarPickerView.currentDate = Date()
     }
     
     private func prepareNavigationBar() {
@@ -159,9 +144,13 @@ extension MainViewController {
     private func prepareToolbar() {
         navigationController?.toolbar.setShadowImage(UIImage(), forToolbarPosition: .any)
         navigationController?.toolbar.tintColor = .orange
-        let leftBarButton = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: nil)
+        let leftBarButton = UIBarButtonItem(barButtonSystemItem: .trash, target: self, action: #selector(handleDeleteTasks))
         leftBarButton.isEnabled = false
         toolbarItems = [leftBarButton]
+        let rightBarButton = UIBarButtonItem.init(barButtonSystemItem: .done, target: self, action: #selector(handleDone))
+        rightBarButton.isEnabled = false
+        let flexibleButton = UIBarButtonItem.init(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        toolbarItems = [leftBarButton,flexibleButton,rightBarButton]
     }
 }
 
@@ -170,7 +159,7 @@ extension MainViewController {
 extension MainViewController {
     
     @objc
-    private func createAction() {
+    private func handleDone() {
         
     }
     
@@ -188,10 +177,10 @@ extension MainViewController {
     
     @objc
     private func selectAllBarButtonAction() {
-        for section in 0...1 {
-            let totalRows = groups[section].rowCount
+        for section in 0..<viewModel.groups.value.count {
+            let totalRows = viewModel.groups.value[section].rowCount
             for row in 0..<totalRows {
-                groups[section].tasks[row].selected = true
+                viewModel.groups.value[section].tasks[row].selected = true
             }
         }
         toolbarItems?.first?.isEnabled = true
@@ -199,10 +188,10 @@ extension MainViewController {
     }
     
     private func deselectAll() {
-        for section in 0...1 {
-            let totalRows = groups[section].rowCount
+        for section in 0..<viewModel.groups.value.count {
+            let totalRows = viewModel.groups.value[section].rowCount
             for row in 0..<totalRows {
-                groups[section].tasks[row].selected = false
+                viewModel.groups.value[section].tasks[row].selected = false
             }
         }
         toolbarItems?.first?.isEnabled = false
@@ -210,8 +199,8 @@ extension MainViewController {
     }
     
     @objc
-    private func logoutAction() {
-        navigationController?.popViewController(animated: true)
+    private func handleDeleteTasks() {
+        viewModel.deleteTasks()
     }
     
     @objc
@@ -237,7 +226,7 @@ extension MainViewController {
         if updatingIndexPath == nil {
             if let section = getSectionFromPoint(location) {
                 let header = tableView.headerView(forSection: section) as? HeaderExpandTableView
-                if groups[section].rowCount > 0 {
+                if viewModel.groups.value[section].rowCount > 0 {
                     header?.expandHeader()
                 } else {
                     updatingIndexPath = IndexPath(row: 0, section: section)
@@ -287,9 +276,9 @@ extension MainViewController {
                     return
                 }
                 
-                let newItem = groups[initialIndexPath.section].tasks[initialIndexPath.row]
-                groups[initialIndexPath.section].tasks.remove(at: initialIndexPath.row)
-                groups[updatingIndexPath.section].tasks.insert(newItem, at: updatingIndexPath.row)
+                let newItem = viewModel.groups.value[initialIndexPath.section].tasks[initialIndexPath.row]
+                viewModel.groups.value[initialIndexPath.section].tasks.remove(at: initialIndexPath.row)
+                viewModel.groups.value[updatingIndexPath.section].tasks.insert(newItem, at: updatingIndexPath.row)
                 
                 tableView.moveRow(at: initialIndexPath, to: updatingIndexPath)
                 Path.initialIndexPath = updatingIndexPath
@@ -337,7 +326,7 @@ extension MainViewController {
     }
     
     private func getSectionFromPoint(_ point: CGPoint) -> Int? {
-        for section in 0..<groups.count {
+        for section in 0..<viewModel.groups.value.count {
             if tableView.rect(forSection: section).contains(point) {
                 return section
             }
@@ -351,46 +340,36 @@ extension MainViewController {
 extension MainViewController: UITableViewDelegate {
     
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if viewModel.groups.value.isEmpty {
+            return nil
+        }
         let header = HeaderExpandTableView()
         header.delegate = self
         header.section = section
-        header.titleLabel.text = groups[section].sectionTitle
+        header.titleLabel.text = viewModel.groups.value[section].sectionTitle
         header.titleLabel.textColor = .red
-        header.expand = groups[section].isExpand
+        header.expand = viewModel.groups.value[section].isExpand
         header.contentView.backgroundColor = .white
         return header
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         
-        if let cell = tableView.dequeueReusableCell(withIdentifier: "TaskCell", for: indexPath) as? TaskCell {
-            let group = groups[indexPath.section]
-            cell.delegate = self
+        if let cell = tableView.dequeueReusableCell(withIdentifier: TaskCell.className, for: indexPath) as? TaskCell {
+            if viewModel.groups.value.isEmpty {
+                return UITableViewCell()
+            }
+            let group = viewModel.groups.value[indexPath.section]
             let job = group.tasks[indexPath.row]
-            cell.contentView.backgroundColor = job.selected ? UIColor.orange.withAlphaComponent(0.5) : UIColor.white
-//            cell.configUI(name: job.name, done: job.done)
-            cell.configUI(task: groups[indexPath.section].tasks[indexPath.row])
             let guesture = UILongPressGestureRecognizer.init(target: self, action: #selector(handleLongPressForEdit))
             guesture.minimumPressDuration = 0.4
+            cell.delegate = self
+            cell.contentView.backgroundColor = job.selected ? UIColor.orange.withAlphaComponent(0.5) : UIColor.white
+            cell.configUI(task: viewModel.groups.value[indexPath.section].tasks[indexPath.row])
             cell.addGestureRecognizer(guesture)
             return cell
         }
         return UITableViewCell()
-    }
-    
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let rowRemoveAction = UITableViewRowAction.init(style: .destructive, title: "Remove") { (row, indexpath) in
-            let task = self.groups[indexPath.section].tasks[indexPath.row]
-            self.viewModel.deleteTask(task: task) {
-                self.groups[indexPath.section].tasks.remove(at: indexPath.row)
-                tableView.beginUpdates()
-                tableView.deleteRows(at: [indexPath], with: .left)
-                tableView.endUpdates()
-            }
-        }
-        rowRemoveAction.backgroundColor = UIColor.orange.withAlphaComponent(0.7)
-        
-        return [rowRemoveAction]
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -398,26 +377,28 @@ extension MainViewController: UITableViewDelegate {
             guard let detailVC = UIStoryboard.main.getViewController(TaskDetailViewController.self) else {
                 return
             }
-            detailVC.assignData(groups[indexPath.section].tasks[indexPath.row].id)
+            detailVC.assignData(viewModel.groups.value[indexPath.section].tasks[indexPath.row])
             self.navigationController?.pushViewController(detailVC, animated: true)
         } else {
-            let group = groups[indexPath.section]
+            let group = viewModel.groups.value[indexPath.section]
             group.tasks[indexPath.row].selected.toggle()
             tableView.reloadRows(at: [indexPath], with: .none)
-            if (group.tasks.map{$0.selected}).contains(true) {
-                toolbarItems?.first?.isEnabled = true
-            } else {
-                toolbarItems?.first?.isEnabled = false
-            }
+            toolbarItems?.first?.isEnabled = (group.tasks.map{$0.selected}).contains(true)
+            toolbarItems?.last?.isEnabled = (group.tasks.map{$0.selected}).contains(true)
         }
     }
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if indexPath.section == groups.count - 1 {
-            viewModel.loadMore()
+        if viewModel.groups.value.isEmpty {
+            return
+        }
+        if indexPath.row == (viewModel.groups.value.last?.rowCount)! - 1 {
+            if !Util.isConnectedToNetwork() {
+                return
+            }
+            viewModel.loadMoreForDate()
         }
     }
-    
 }
 
 //MARK: Tableview datasource
@@ -425,11 +406,11 @@ extension MainViewController: UITableViewDelegate {
 extension MainViewController: UITableViewDataSource {
     
     func numberOfSections(in tableView: UITableView) -> Int {
-        return groups.count
+        return viewModel.groups.value.count
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return groups[section].isExpand ? groups[section].rowCount : 0
+        return viewModel.groups.value[section].isExpand ? viewModel.groups.value[section].rowCount : 0
     }
 }
 
@@ -439,15 +420,15 @@ extension MainViewController: UITableViewDataSource {
 extension MainViewController: HeaderExpandTableViewDelegate {
     
     func header(_ header: HeaderExpandTableView, toggleSectionArrow toggle: Bool) {
-        groups[header.section].isExpand = toggle
+        viewModel.groups.value[header.section].isExpand = toggle
         var indexPaths = [IndexPath]()
         
-        for i in 0..<groups[header.section].rowCount {
+        for i in 0..<viewModel.groups.value[header.section].rowCount {
             indexPaths.append(IndexPath(row: i, section: header.section))
         }
         tableView.beginUpdates()
         let numberRows = tableView.numberOfRows(inSection: header.section)
-        if groups[header.section].isExpand {
+        if viewModel.groups.value[header.section].isExpand {
             if numberRows == 0 {
                 tableView.insertRows(at: indexPaths, with: .left)
             }
@@ -468,9 +449,38 @@ extension MainViewController: TaskCellDelegate {
         guard let indexPath = tableView.indexPath(for: cell) else {
             return
         }
-        let group = groups[indexPath.section]
+        let group = viewModel.groups.value[indexPath.section]
         let job = group.tasks[indexPath.row]
-        job.done.toggle()
+        if job.status == .done {
+            job.rawStatus = Status.inprogess.rawValue
+        } else {
+            job.rawStatus = Status.done.rawValue
+        }
         tableView.reloadRows(at: [indexPath], with: .none)
+    }
+    
+    func taskCell(cell: TaskCell, didSelectDeleteButton button: UIButton) {
+        guard let indexPath = tableView.indexPath(for: cell) else {
+            return
+        }
+        let task = self.viewModel.groups.value[indexPath.section].tasks[indexPath.row]
+        self.viewModel.deleteTask(task: task) { [weak self] in
+            guard let sSelf = self else {
+                return
+            }
+            sSelf.viewModel.groups.value[indexPath.section].tasks.remove(at: indexPath.row)
+            sSelf.tableView.beginUpdates()
+            sSelf.tableView.deleteRows(at: [indexPath], with: .left)
+            sSelf.tableView.endUpdates()
+        }
+    }
+}
+
+//MARK: Calendar pickerview delegate
+
+extension MainViewController: CalendarPickerViewDelegate {
+    
+    func calendarPickerView(picker: CalendarPickerView, dateDidChange date: Date) {
+        viewModel.fetchTasks(date: date)
     }
 }

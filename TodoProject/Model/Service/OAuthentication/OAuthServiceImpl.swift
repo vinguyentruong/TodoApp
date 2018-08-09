@@ -71,17 +71,22 @@ class OAuthServiceImpl: NSObject {
 
 extension OAuthServiceImpl: OAuthProtocol {
     
-    func logout(email: String) -> Observable<Error?> {
-        let parameters = ["username": email]
+    func logout() -> Observable<Bool> {
         return Observable.create({ (e) -> Disposable in
             self.request(
                 "\(Configuration.BaseUrl)/api/auth/logout",
                 method: .post,
-                parameters: parameters,
+                parameters: nil,
                 encoding: JSONEncoding.default,
-                headerHander: nil) { (json, error) in
+                headerHander: {
+                    var headers = HTTPHeaders()
+                    headers["Authorization"] = "Bearer \(OAuthToken.default.accessToken)"
+                    return headers
+                }) { (json, error) in
                     if let err = error {
                         e.on(.error(err))
+                    } else if let check = json?["data"].boolValue {
+                        e.on(.next(check))
                     }
                     e.on(.completed)
             }

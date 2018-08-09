@@ -11,15 +11,15 @@ import SpringIndicator
 
 extension UIView {
     
+    static var className: String {
+        return String(describing: self)
+    }
+    
     public func loadViewFromNib() -> UIView {
         let typeOfSelf = type(of: self)
         let bundle = Bundle(for: typeOfSelf)
         let nib = UINib(nibName: String(describing: typeOfSelf), bundle: bundle)
         return nib.instantiate(withOwner: self, options: nil).first as! UIView
-    }
-    
-    func className() -> String {
-        return String(describing: self)
     }
     
     func setGradientColors(colors: [UIColor], cornerRadious: CGFloat?) {

@@ -12,6 +12,7 @@ target 'TodoProject' do
   pod 'RealmSwift'
   pod 'RxSwift'
   pod 'RxCocoa'
+  pod 'FSCalendar'
   pod 'Swinject'
   pod 'SwinjectStoryboard'
   pod 'Alamofire'
@@ -20,6 +21,7 @@ target 'TodoProject' do
   pod 'Kingfisher', '~> 4.0'
   pod 'INSPhotoGallery'
   pod 'KeychainSwift'
+  pod 'ReachabilitySwift'
 
   target 'TodoProjectTests' do
     inherit! :search_paths

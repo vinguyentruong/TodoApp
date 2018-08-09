@@ -20,8 +20,7 @@ class OptionCell: BaseTableViewCell {
         themeButton.valueLabel.text = "Light"
     }
     
-    override func configTitle(title: String) {
+    override func configure(title: String) {
         titleLabel.text = title
     }
-    
 }

@@ -13,5 +13,6 @@ import RxSwift
 protocol UploadService: class {
     
     func uploadFile(url             : URL,
-                    progressHandler : @escaping Request.ProgressHandler, responseHandler:  @escaping ResponseHandler)
+                    progressHandler : @escaping Request.ProgressHandler,
+                    responseHandler : @escaping ResponseHandler)
 }

@@ -14,10 +14,15 @@ import SpringIndicator
 class LoginViewModel: BaseViewModel {
     
     private let oauthService: OAuthProtocol
-    internal var loginSuccess = Variable<Bool>(false)
+    private let appService: TodoAppService!
+    internal var inProcessing = Variable<Bool>(false)
     
-    init(navigator: Navigator, oauthService: OAuthProtocol) {
+    init(navigator      : Navigator,
+         oauthService   : OAuthProtocol,
+         appService     : TodoAppService) {
         self.oauthService = oauthService
+        self.appService = appService
+        
         super.init(navigator: navigator)
     }
     
@@ -33,7 +38,6 @@ class LoginViewModel: BaseViewModel {
     
     internal func login(email: String, password: String) {
         navigator.viewController?.view.startAnimation(attribute: SpringIndicator.lagreAndCenter)
-        navigator.beginIgnoringEvent()
         oauthService
             .login(email: email, password: password)
             .observeOn(MainScheduler.instance)
@@ -43,21 +47,40 @@ class LoginViewModel: BaseViewModel {
                         return
                     }
                     OAuthToken.default.update(oauthToken: data)
-                    sSelf.loginSuccess.value = true
-                    sSelf.navigator.endIgnoringEvent()
+                    sSelf.getUser()
                     sSelf.navigator.viewController?.view.stopAnimation()
                 },
                 onError: { [weak self] error in
                     guard let sSelf = self else {
                         return
                     }
-                    sSelf.loginSuccess.value = false
-                    sSelf.navigator.endIgnoringEvent()
+                    sSelf.inProcessing.value = false
                     sSelf.navigator.viewController?.view.stopAnimation()
-                    sSelf.navigator.showAlert(title: "Error",
-                                              message: error.localizedDescription,
-                                              negativeTitle: "Ok")
+                    sSelf.showError(error: error)
                 }
             ).disposed(by: disposeBag)
+    }
+    
+    func getUser() {
+        appService.getUser()
+            .observeOn(MainScheduler.instance)
+            .asObservable()
+            .subscribe(
+                onNext: { [weak self] user in
+                    guard let sSelf = self else {
+                        return
+                    }
+                    let userDefault = user
+                    userDefault.logined = true
+                    User.default = userDefault
+                    sSelf.inProcessing.value = true
+                },
+                onError: { [weak self] error in
+                    guard let sSelf = self else {
+                        return
+                    }
+                    sSelf.inProcessing.value = true
+                }
+        ).disposed(by: disposeBag)
     }
 }

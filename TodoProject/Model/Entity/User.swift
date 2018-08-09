@@ -13,7 +13,6 @@ enum UserRole: String {
     
     case admin = "admin"
     case normal = "normal"
-    
 }
 
 class User: NSObject {
@@ -28,35 +27,10 @@ class User: NSObject {
     internal var createdAt: Date?
     internal var updatedAt: Date?
     internal var deletedAt: Date?
-    
-    // MARK: Override method
-    
-    internal init(json: JSON) {
-        super.init()
-        
-        id = json["id"].stringValue
-        createdAt   = json["createdAt"].dateTime
-        updatedAt   = json["updatedAt"].dateTime
-        deletedAt   = json["deletedAt"].dateTime
-        avatar      = json["avatar"].stringValue
-        displayName = json["displayName"].stringValue
-        username    = json["username"].stringValue
-        role        = UserRole(rawValue: json["role"].stringValue) ?? .normal
-    }
-    
-    internal func toDictionary() -> [String: Any] {
-        var dictionary = [String: Any]()
-        dictionary["id"] = id
-        dictionary["displayName"] = displayName
-        dictionary["username"]    = username
-        dictionary["role"]        = role.rawValue
-        dictionary["createdAt"]   = createdAt
-        dictionary["updatedAt"]   = updatedAt
-        dictionary["deletedAt"]   = deletedAt
-        return dictionary
-    }
+    internal var logined = false
     
     private static var _default: User?
+    
     internal static var `default`: User? {
         get {
             if _default == nil {
@@ -74,5 +48,37 @@ class User: NSObject {
             }
             _default = newValue
         }
+    }
+    
+    // MARK: Construction
+    
+    internal init(json: JSON) {
+        super.init()
+        
+        id          = json["id"].stringValue
+        createdAt   = json["createdAt"].dateTime
+        updatedAt   = json["updatedAt"].dateTime
+        deletedAt   = json["deletedAt"].dateTime
+        avatar      = json["avatar"].stringValue
+        displayName = json["displayName"].stringValue
+        username    = json["username"].stringValue
+        role        = UserRole(rawValue: json["role"].stringValue) ?? .normal
+        logined     = json["logined"].bool ?? false
+    }
+    
+    // MARK: Internal methods
+    
+    internal func toDictionary() -> [String: Any] {
+        var dictionary = [String: Any]()
+        dictionary["id"]          = id
+        dictionary["displayName"] = displayName
+        dictionary["username"]    = username
+        dictionary["avatar"]      = avatar
+        dictionary["role"]        = role.rawValue
+        dictionary["createdAt"]   = createdAt
+        dictionary["updatedAt"]   = updatedAt
+        dictionary["deletedAt"]   = deletedAt
+        dictionary["logined"]     = logined
+        return dictionary
     }
 }

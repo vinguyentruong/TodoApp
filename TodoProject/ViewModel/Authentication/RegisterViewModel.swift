@@ -23,9 +23,12 @@ class RegisterViewModel: BaseViewModel {
     
     //MARK: Construction
     
-    init(navigator: Navigator, oauthService: OAuthProtocol, uploadService: UploadService) {
+    init(navigator      : Navigator,
+         oauthService   : OAuthProtocol,
+         uploadService  : UploadService) {
         self.oauthService = oauthService
         self.uploadService = uploadService
+        
         super.init(navigator: navigator)
     }
     
@@ -42,10 +45,11 @@ class RegisterViewModel: BaseViewModel {
     internal func signUp(displayName: String, email: String, password: String) {
         navigator.viewController?.view.startAnimation(attribute: SpringIndicator.lagreAndCenter)
         navigator.beginIgnoringEvent()
-        oauthService.resgister(displayName: displayName,
-                               email: email,
-                               password: password,
-                               imageURL: imageURL)
+        oauthService
+            .resgister(displayName  : displayName,
+                       email        : email,
+                       password     : password,
+                       imageURL     : imageURL)
             .observeOn(MainScheduler.instance)
             .subscribe(
                 onNext: { [weak self] user in
@@ -64,16 +68,20 @@ class RegisterViewModel: BaseViewModel {
                     sSelf.registerSuccess.value = false
                     sSelf.navigator.endIgnoringEvent()
                     sSelf.navigator.viewController?.view.stopAnimation()
-                    sSelf.navigator.showAlert(title: "Error",
-                                              message: error.localizedDescription,
-                                              negativeTitle: "Ok")
+                    sSelf.showError(error: error)
                 }
         ).disposed(by: disposeBag)
     }
     
     internal func uploadAvatar(image: UIImage) {
+        guard
+            let scaleImage = image.resizeImage(targetSize: CGSize(width: 600, height: 600)),
+            let compressImage = UIImageJPEGRepresentation(scaleImage, 0.7) else {
+            return
+        }
+        
         let fileName = "IMG_\(Date().timeIntervalSince1970).png"
-        let newUrl = FileManager.default.saveImage(from: image, name: fileName)
+        let newUrl = FileManager.default.saveImage(from: compressImage, name: fileName)
         guard let url = newUrl else {
             return
         }
@@ -86,18 +94,19 @@ class RegisterViewModel: BaseViewModel {
             do {
                 try FileManager.default.removeItem(at: url)
             } catch let err as NSError {
-                sSelf.navigator.showAlert(title: "Error", message: err.localizedDescription, negativeTitle: "Ok")
+                sSelf.showError(error: err)
             }
             if let error = error {
-                sSelf.navigator.showAlert(title: "Error", message: error.localizedDescription, negativeTitle: "Ok")
+                sSelf.showError(error: error)
             } else {
                 guard let json = json?["data"]  else {
                     return
                 }
                 let imageUrl = json["newName"].stringValue
-                print("newName \(imageUrl)")
                 self?.imageURL = imageUrl
-                sSelf.navigator.showAlert(title: "Upload successful!", message: "", negativeTitle: "Ok")
+                sSelf.navigator.showAlert(title         : "Upload successful!",
+                                          message       : "",
+                                          negativeTitle : "Ok")
             }
         }
     }

@@ -7,32 +7,36 @@
 //
 
 import UIKit
+import Material
 
 protocol AccountCellDelegate: BaseCellDelegate {
     func accountCell(didSelectLogout cell: AccountCell)
+    func accountCell(valueNameDidChange textField: UITextField)
 }
 
 class AccountCell: BaseTableViewCell {
 
     //MARK: Property
     
-    @IBOutlet weak var eyeButton: UIButton!
+    @IBOutlet weak var nameTextfield: TextField!
     @IBOutlet weak var titleLabel: UILabel!
-    @IBOutlet weak var passwordTextfield: UITextField!
     
     //MARK: Overide methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        
-        eyeButton.setImage(#imageLiteral(resourceName: "ic_eye"), for: .normal)
-        eyeButton.addTarget(self, action: #selector(handleReleaseEvent(event:)), for: UIControlEvents.touchUpOutside)
-        eyeButton.addTarget(self, action: #selector(handleReleaseEvent(event:)), for: UIControlEvents.touchUpInside)
-        eyeButton.addTarget(self, action: #selector(handleTouchDownEvent(event:)), for: UIControlEvents.touchDown)
+        nameTextfield.placeholderAnimation = .hidden
+        nameTextfield.placeholder = "Name"
+        nameTextfield.detailColor = UIColor.red
+        nameTextfield.addTarget(self, action: #selector(nameTextFieldAction), for: .editingChanged)
     }
-
-    override func configTitle(title: String) {
+    
+    override func configure(title: String) {
         titleLabel.text = title
+    }
+    
+    func configureUI(name: String) {
+        nameTextfield.text = name
     }
     
     //MARK: IB Action
@@ -42,19 +46,19 @@ class AccountCell: BaseTableViewCell {
     }
 }
 
-//MARK: Actions
-
-extension AccountCell {
+extension AccountCell: UITextFieldDelegate {
     
     @objc
-    private func handleReleaseEvent(event: UIControlEvents) {
-        eyeButton.setImage(#imageLiteral(resourceName: "ic_eye"), for: .normal)
-        passwordTextfield.isSecureTextEntry = true
-    }
-    
-    @objc
-    private func handleTouchDownEvent(event: UIControlEvents) {
-        eyeButton.setImage(#imageLiteral(resourceName: "ic_eye_enable"), for: .normal)
-        passwordTextfield.isSecureTextEntry = false
+    private func nameTextFieldAction() {
+        if let text = nameTextfield.text,
+            text.count > 50 {
+            nameTextfield.text = text.subString(from: 0, offset: 50)
+            nameTextfield.detail = "Number of character out of limit"
+        } else {
+            nameTextfield.detail = nil
+            (delegate as? AccountCellDelegate)?.accountCell(valueNameDidChange: nameTextfield)
+        }
     }
 }
+
+

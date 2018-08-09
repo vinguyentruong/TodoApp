@@ -15,6 +15,7 @@ protocol DescriptionCellDelegate: BaseCellDelegate {
 
 class DescriptionCell: BaseTableViewCell {
 
+    @IBOutlet weak var textCountLabel: UILabel!
     @IBOutlet weak var descriptionContentView: CustomTextView!
     @IBOutlet weak var titleLabel: UILabel!
     
@@ -24,15 +25,13 @@ class DescriptionCell: BaseTableViewCell {
             guard let sSelf = self else {
                 return
             }
+            sSelf.textCountLabel.text = "\(textView.text.count)/80"
             (sSelf.delegate as? DescriptionCellDelegate)?.descriptionCell(contentDidEndChange: textView.text)
         }
     }
     
-    override func configTitle(title: String) {
+    override func configure(title: String, task: Task) {
         titleLabel.text = title
-    }
-    
-    func configure(description: String?) {
-        descriptionContentView.text = description
+        descriptionContentView.text = task.content
     }
 }

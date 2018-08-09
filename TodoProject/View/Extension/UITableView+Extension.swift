@@ -12,7 +12,6 @@ import SpringIndicator
 extension UITableView {
     
     internal func startFooterLoading() {
-        print("loading")
         for subView in tableFooterView?.subviews ?? [] {
             if subView is SpringIndicator {
                 return
@@ -36,6 +35,18 @@ extension UITableView {
             if let indicator = subView as? SpringIndicator {
                 indicator.removeFromSuperview()
             }
+        }
+    }
+    
+    public func tableHeaderViewSizeToFit() {
+        guard let headerView = tableHeaderView else {
+            return
+        }
+        let size = headerView.systemLayoutSizeFitting(UILayoutFittingCompressedSize)
+        if headerView.frame.size.height != size.height {
+            headerView.frame.size.height = size.height
+            tableHeaderView = headerView
+            layoutIfNeeded()
         }
     }
 }

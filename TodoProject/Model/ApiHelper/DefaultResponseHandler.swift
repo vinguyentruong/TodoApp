@@ -43,7 +43,7 @@ extension DefaultResponseHandler: ResponseHandlerProtocol {
             }
             responseHandler?(nil, NSError(domain    : "",
                                           code      : 0,
-                                          userInfo  : [NSLocalizedDescriptionKey: "something_went_wrong_error".localized()]))
+                                          userInfo  : [NSLocalizedDescriptionKey: "Something went wrong error".localized()]))
 
         }
     }

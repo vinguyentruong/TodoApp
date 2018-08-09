@@ -8,5 +8,4 @@
 
 extension ViewKey {
     
-    public static let SignInView                = ViewKey("SignInView")
 }

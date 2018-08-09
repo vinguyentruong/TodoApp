@@ -22,18 +22,6 @@ class DateTimeCell: BaseTableViewCell {
     @IBOutlet weak var timeButton: ValueButton!
     @IBOutlet weak var alertButton: ValueButton!
     
-    internal var date: Date = Date() {
-        didSet {
-            dateButton.valueLabel.text = date.dateToString(format: DateFormatter.yyyy_MM_dd)
-        }
-    }
-    
-    internal var time: Date = Date() {
-        didSet {
-            timeButton.valueLabel.text = date.dateToString(format: DateFormatter.hh_mm_aa)
-        }
-    }
-    
     //MARK: overide methods
     
     override func awakeFromNib() {
@@ -50,16 +38,22 @@ class DateTimeCell: BaseTableViewCell {
         super.layoutSubviews()
     }
     
-    override func configTitle(title: String) {
-        titleLabel.text = title
+    override func configure(title: String) {
+        self.titleLabel.text = title
+        
     }
     
-    internal func configure(defaultDate: Date?, defaultTime: Date?) {
-        if let date = defaultTime, let time = defaultTime {
-            self.date = date
-            self.time = time
-        }
+    override func configure(title: String, task: Task) {
+        self.titleLabel.text = title
+        dateButton.valueLabel.text = task.deadline.dateToString(format: DateFormatter.yyyy_MM_dd)
+        timeButton.valueLabel.text = task.deadline.dateToString(format: DateFormatter.hh_mm_aa)
     }
+    
+    internal func configure(defaultDate: Date, defaultTime: Date) {
+        dateButton.valueLabel.text = defaultDate.dateToString(format: DateFormatter.yyyy_MM_dd)
+        timeButton.valueLabel.text = defaultTime.dateToString(format: DateFormatter.hh_mm_aa)
+    }
+    
 }
 
 extension DateTimeCell: ValueButtonDelegate {

@@ -34,6 +34,7 @@ extension CustomTextView: UITextViewDelegate {
         if textView.textColor == UIColor.lightGray {
             textView.text = nil
             textView.textColor = UIColor.black
+            valueChanged?(self)
         }
     }
     
@@ -45,6 +46,9 @@ extension CustomTextView: UITextViewDelegate {
     }
     
     func textViewDidChange(_ textView: UITextView) {
+        if let text = textView.text, text.count > 80 {
+            textView.text = text.subString(from: 0, offset: 80)
+        }
         valueChanged?(self)
     }
 }

@@ -118,31 +118,6 @@ class Repository<T: Object>: NSObject {
         }
     }
     
-    func setHistory(_ id: String, date: Date?, action: HistoryAction) {
-        autoreleasepool {
-            let realm = self.realm
-            realm.beginWrite()
-            let uid = "\(tableName)_\(id)_\(action.rawValue)"
-            var history = realm.objects(History.self)
-                .filter("id = '\(uid)'")
-                .first
-            if history == nil {
-                history = realm.create(History.self, value: ["\(History.primaryKey()!)": uid])
-            }
-            history?.action = action
-            history?.updatedAt = date
-            try? realm.commitWrite()
-        }
-    }
-    
-    func getHistory(_ id: String, action: HistoryAction) -> Date? {
-        let uid = "\(tableName)_\(id)_\(action.rawValue)"
-        let history = realm.objects(History.self)
-            .filter("id = '\(uid)'")
-            .first
-        return history?.updatedAt
-    }
-    
     func getIndex(page: Int, limit: Int, total: Int) -> (Int, Int) {
         let startIndex = page * limit
         let endIndex = startIndex + limit

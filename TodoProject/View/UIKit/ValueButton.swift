@@ -10,6 +10,7 @@ import UIKit
 import Material
 
 protocol ValueButtonDelegate: class {
+    
     func valueButton(didSelectButton button: ValueButton)
 }
 

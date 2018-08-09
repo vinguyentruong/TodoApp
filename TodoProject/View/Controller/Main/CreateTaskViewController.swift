@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Material
 
 class CreateTaskViewController: BaseTodoViewController {
 
@@ -102,7 +103,7 @@ extension CreateTaskViewController: UITableViewDataSource {
         if let cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifies[indexPath.row]) as? BaseTableViewCell {
             (cell as? DateTimeCell)?.configure(defaultDate: Date(), defaultTime: Date())
             cell.delegate = self
-            cell.configTitle(title: itemTitlesTable[indexPath.row])
+            cell.configure(title: itemTitlesTable[indexPath.row])
             return cell
         }
         
@@ -144,8 +145,9 @@ extension CreateTaskViewController: DateTimeCellDelegate {
 }
 
 extension CreateTaskViewController: NameCellDelegate {
-    func nameCell(nameValueDidEndChange text: String?) {
-        name = text ?? ""
+    
+    func nameCell(nameValueDidEndChange textField: TextField) {
+        name = textField.text ?? ""
     }
 }
 

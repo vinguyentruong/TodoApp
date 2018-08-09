@@ -10,16 +10,24 @@ import UIKit
 import Material
 
 protocol TaskCellDelegate {
+    
     func taskCell(cell: TaskCell, didSelectDoneButton button: UIButton)
+    func taskCell(cell: TaskCell, didSelectDeleteButton button: UIButton)
 }
 
 class TaskCell: TableViewCell {
 
+    // MARK: Property
+    
+    @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var containerView: UIView!
     @IBOutlet weak var doneButton: UIButton!
     
     internal var delegate: TaskCellDelegate?
+    private var task: Task?
+    
+    // MARK: Overide methods
     
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -32,8 +40,6 @@ class TaskCell: TableViewCell {
         super.layoutSubviews()
         
         containerView.layoutIfNeeded()
-        containerView.backgroundColor = UIColor.clear
-        
         let shadowPath = UIBezierPath(rect: containerView.bounds)
         containerView.layer.shadowOffset = CGSize(width: 0.2, height: 0.2)
         containerView.layer.shadowColor = UIColor.black.cgColor
@@ -41,8 +47,19 @@ class TaskCell: TableViewCell {
         containerView.layer.shadowPath = shadowPath.cgPath
         containerView.clipsToBounds = true
         containerView.layer.masksToBounds = false
-        containerView.setGradientColors(colors: [UIColor.red.withAlphaComponent(0.8),UIColor.orange.withAlphaComponent(0.8)], cornerRadious: 8)
+        if task?.rawStatus == Status.inprogess.rawValue, (task?.deadline ?? Date()) < Date() {
+            if let index = containerView.layer.sublayers?.index(where: { $0.name == "gradient" }) {
+                containerView.layer.sublayers?.remove(at: index)
+            }
+            containerView.layer.backgroundColor = UIColor.gray.cgColor
+            containerView.layer.cornerRadius = 8
+        } else {
+            containerView.backgroundColor = UIColor.clear
+            containerView.setGradientColors(colors: [UIColor.red.withAlphaComponent(0.8),UIColor.orange.withAlphaComponent(0.8)], cornerRadious: 8)
+        }
     }
+    
+    // MARK: Internal methods
     
     internal func configUI(name: String, done: Bool) {
         nameLabel.text = name
@@ -50,12 +67,21 @@ class TaskCell: TableViewCell {
     }
     
     internal func configUI(task: Task) {
+        self.task = task
         nameLabel.text = task.name
-        doneButton.isSelected = task.done
+        dateLabel.text = task.deadline.dateToString(format: DateFormat.hh_mm_aa.name)
+        doneButton.isSelected = task.status == .done
     }
     
+    // MARK: Actions
+    
     @IBAction func checkAction(_ sender: Any) {
+//        let button = sender as! UIButton
+//        delegate?.taskCell(cell: self, didSelectDoneButton: button)
+    }
+    
+    @IBAction func deleteAction(_ sender: Any) {
         let button = sender as! UIButton
-        delegate?.taskCell(cell: self, didSelectDoneButton: button)
+        delegate?.taskCell(cell: self, didSelectDeleteButton: button)
     }
 }

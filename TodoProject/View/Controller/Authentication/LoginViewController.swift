@@ -24,7 +24,6 @@ class LoginViewController: BaseTodoViewController {
     @IBOutlet weak var signInButton: UIButton!
     
     private var checked = false
-
     private var isEnableSignInButton = Variable<Bool>(false)
     
     //MARK: Lifecycle
@@ -32,13 +31,14 @@ class LoginViewController: BaseTodoViewController {
     override func viewDidLoad() {
         disposeBag = DisposeBag()
         prepareUI()
+        
         super.viewDidLoad()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        passwordTextfield.text = "11111111"
+        passwordTextfield.text = "12345678a"
         usernameTextfield.text = "tankorbox@gmail.com"
         isEnableSignInButton.value = true
         navigationController?.isNavigationBarHidden = true
@@ -76,17 +76,24 @@ class LoginViewController: BaseTodoViewController {
             }
             ).disposed(by: disposeBag)
         
-        viewModel.loginSuccess
+        viewModel.inProcessing
             .asDriver()
-            .drive(onNext: { [weak self] success in
-                guard let sSelf = self else {
-                    return
-                }
+            .drive(onNext: { success in
                 if success {
                     guard let vc = UIStoryboard.main.getViewController(MainViewController.self) else {
                         return
                     }
-                    sSelf.navigationController?.pushViewController(vc, animated: true)
+                    if let window = AppDelegate.shared().window {
+                        let navigation = UINavigationController(rootViewController: vc)
+                        UIView.transition(
+                            with        : window,
+                            duration    : 0.33,
+                            options     : .transitionCrossDissolve,
+                            animations  : {
+                                window.rootViewController = navigation
+                                window.windowLevel = UIWindowLevelNormal
+                        })
+                    }
                 }
             }
             ).disposed(by: disposeBag)
@@ -105,7 +112,11 @@ class LoginViewController: BaseTodoViewController {
     }
     
     @IBAction func registerAction(_ sender: Any) {
-        //
+        guard let registerView = UIStoryboard.main.getViewController(RegisterViewController.self) else {
+            return
+        }
+        let navigation = UINavigationController(rootViewController: registerView)
+        self.present(navigation, animated: true, completion: nil)
     }
 }
 
@@ -116,7 +127,7 @@ extension LoginViewController {
     private func prepareUI() {
         signInButton.isEnabled = false
         signInButton.clipsToBounds = true
-        signInButton.layer.cornerRadius = 3
+        signInButton.layer.cornerRadius = 8
         view.addGestureRecognizer(UITapGestureRecognizer.init(target: self, action: #selector(handelTapGesture)))
     }
 }

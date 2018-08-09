@@ -30,7 +30,7 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5PJ-YN-Teg">
                         <rect key="frame" x="8" y="8" width="304" height="175.5"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7JX-lz-6iG">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Description" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7JX-lz-6iG">
                                 <rect key="frame" x="8" y="8" width="288" height="21"/>
                                 <fontDescription key="fontDescription" name="Montserrat-Bold" family="Montserrat" pointSize="17"/>
                                 <nil key="textColor"/>
@@ -81,6 +81,7 @@
             <connections>
                 <outlet property="containerView" destination="5PJ-YN-Teg" id="tih-3W-Ohb"/>
                 <outlet property="descriptionContentView" destination="G8I-Pb-yjC" id="3IM-X0-xCS"/>
+                <outlet property="textCountLabel" destination="ISt-db-zja" id="a8d-tQ-xVe"/>
                 <outlet property="titleLabel" destination="7JX-lz-6iG" id="KjO-tz-k5d"/>
             </connections>
             <point key="canvasLocation" x="28" y="113"/>

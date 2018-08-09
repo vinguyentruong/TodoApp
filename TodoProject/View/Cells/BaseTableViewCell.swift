@@ -16,7 +16,7 @@ class BaseTableViewCell: UITableViewCell {
 
     @IBOutlet weak var containerView: UIView!
     internal weak var delegate: BaseCellDelegate?
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         // Initialization code
@@ -30,15 +30,17 @@ class BaseTableViewCell: UITableViewCell {
         containerView.layer.shadowOffset = CGSize(width: 0.2, height: 0.2)
         containerView.layer.shadowColor = UIColor.black.cgColor
         containerView.layer.shadowOpacity = 0.1
-        
         containerView.layer.shadowPath = shadowPath.cgPath
         containerView.clipsToBounds = true
         containerView.layer.masksToBounds = false
         containerView.layer.cornerRadius = 8
     }
     
-    internal func configTitle(title: String) {
-        //
+    internal func configure(title: String, task: Task) {
+
+    }
+    internal func configure(title: String) {
+        
     }
 
 }

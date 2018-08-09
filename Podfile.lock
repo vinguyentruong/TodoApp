@@ -1,6 +1,7 @@
 PODS:
   - Alamofire (4.7.3)
   - EventBusSwift (0.2.0)
+  - FSCalendar (2.7.9)
   - INSPhotoGallery (1.2.5)
   - IQKeyboardManagerSwift (6.1.0)
   - KeychainSwift (11.0.0)
@@ -12,6 +13,7 @@ PODS:
   - Motion (1.3.5):
     - Motion/Core (= 1.3.5)
   - Motion/Core (1.3.5)
+  - ReachabilitySwift (4.1.0)
   - Realm (3.7.4):
     - Realm/Headers (= 3.7.4)
   - Realm/Headers (3.7.4)
@@ -29,11 +31,13 @@ PODS:
 DEPENDENCIES:
   - Alamofire
   - EventBusSwift
+  - FSCalendar
   - INSPhotoGallery
   - IQKeyboardManagerSwift
   - KeychainSwift
   - Kingfisher (~> 4.0)
   - Material
+  - ReachabilitySwift
   - RealmSwift
   - RxCocoa
   - RxSwift
@@ -46,12 +50,14 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - Alamofire
     - EventBusSwift
+    - FSCalendar
     - INSPhotoGallery
     - IQKeyboardManagerSwift
     - KeychainSwift
     - Kingfisher
     - Material
     - Motion
+    - ReachabilitySwift
     - Realm
     - RealmSwift
     - RxCocoa
@@ -64,12 +70,14 @@ SPEC REPOS:
 SPEC CHECKSUMS:
   Alamofire: c7287b6e5d7da964a70935e5db17046b7fde6568
   EventBusSwift: 83ab060be1543af811945290da732db9137497a3
+  FSCalendar: a04b09f16f811bc92e82f3cf852a15225233b9d5
   INSPhotoGallery: 8bd5b434e70d06dd698085f8e865f6602d82014b
   IQKeyboardManagerSwift: f5004f5860d9a8ed23a7ef7a156ae168828eb018
   KeychainSwift: bea6bd9f98af7b8d7ca4aa79fe105c00fab532db
   Kingfisher: 976d828df2b24834c6a3f2fc4d82cdbd26552be1
   Material: 00e32bb5e61b3f749044897b2d93acd8bf33faa4
   Motion: 9f74d115d7f72bb5380a8e3cde2f8a1fc898ac36
+  ReachabilitySwift: 6849231cd4e06559f3b9ef4a97a0a0f96d41e09f
   Realm: a469bb59e33f9926102ccaea4349822c53b9117e
   RealmSwift: a45861b21c180f5cf0f122144b9759fa8dde3e9e
   RxCocoa: 0b54909c902e1e581212a03e690bbd94032d8baa
@@ -79,6 +87,6 @@ SPEC CHECKSUMS:
   Swinject: f7f15a9672e99328c1f07f277091087917215700
   SwinjectStoryboard: ad2529218a1504cc888040ee56c13d7cb1cc7998
 
-PODFILE CHECKSUM: 2779f8d3ac1ed51c8f4ac6304c1bc99797161d5f
+PODFILE CHECKSUM: fc94c6a708d329df60571b7c9edf18823d1b4c9c
 
 COCOAPODS: 1.5.0

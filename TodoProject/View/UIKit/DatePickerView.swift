@@ -19,10 +19,9 @@ class DatePickerView: UIView {
     @IBOutlet weak var navigationBar: UINavigationBar!
     
     internal var view: UIView!
-    private var showed = false
-    
     internal var doneHandler: DatePickerViewDoneHandler?
     internal var cancelHandler: DatePickerViewCancelHandler?
+    private var showed = false
     
     public override init(frame: CGRect) {
         super.init(frame: frame)
@@ -81,7 +80,7 @@ class DatePickerView: UIView {
     }
     
     internal static func show(type          : UIDatePickerMode,
-                              title: String,
+                              title         : String,
                               doneHandler   : @escaping DatePickerViewDoneHandler,
                               cancelHander  : @escaping DatePickerViewCancelHandler) {
         guard let window = UIApplication.shared.keyWindow else {
@@ -89,17 +88,18 @@ class DatePickerView: UIView {
         }
         UIApplication.topViewController()?.view.endEditing(true)
         let datePickerView = DatePickerView()
+        window.addSubview(datePickerView)
         datePickerView.datePicker.datePickerMode = type
         datePickerView.navigationBar.topItem?.title = title
         datePickerView.backgroundView.backgroundColor = UIColor.black
         datePickerView.backgroundView.alpha = 0
-        window.addSubview(datePickerView)
         datePickerView.translatesAutoresizingMaskIntoConstraints = false
         datePickerView.leftAnchor.constraint(equalTo: window.leftAnchor).isActive = true
         datePickerView.rightAnchor.constraint(equalTo: window.rightAnchor).isActive = true
         datePickerView.bottomAnchor.constraint(equalTo: window.bottomAnchor).isActive = true
         datePickerView.heightAnchor.constraint(equalTo: window.heightAnchor).isActive = true
         datePickerView.pickerView.transform = CGAffineTransform(translationX: 0, y: 250)
+        
         datePickerView.cancelHandler = { [weak datePickerView] _ in
             guard let sSelf = datePickerView else {
                 return

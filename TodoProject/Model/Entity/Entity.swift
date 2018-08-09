@@ -33,7 +33,7 @@ class Entity: Object {
     // MARK: Internal method
     
     internal func from(json: JSON) {
-        id = json["id"].stringValue
+        id        = json["id"].stringValue
         createdAt = json["createdAt"].dateTime
         updatedAt = json["updatedAt"].dateTime
         deletedAt = json["deletedAt"].dateTime

@@ -23,23 +23,26 @@ open class JobManager: NSObject {
     
     // MARK: Public method
     
-    public func execute(_ job: Job) {
+    public func addJob(_ job: Job) {
         jobs.push(job)
-        maybeExecuteNextJob()
+    }
+    
+    public func execute() {
+        excuteJobs()
     }
     
     // MARK: Private method
     
-    private func maybeExecuteNextJob() {
+    private func excuteJobs() {
         if !jobs.isEmpty && !isBusy {
             isBusy = true
             let job = jobs.peek()
+            job?.start()
             job?.closure = ({ [weak self] (error) in
                 _ = self?.jobs.pop()
+                self?.excuteJobs()
                 self?.isBusy = false
-                self?.maybeExecuteNextJob()
             })
-            job?.start()
         }
     }
     

@@ -9,15 +9,18 @@
 import UIKit
 
 protocol HeaderExpandTableViewDelegate: class {
+    
     func header(_ header: HeaderExpandTableView, toggleSectionArrow toggle: Bool)
 }
 
 class HeaderExpandTableView: UITableViewHeaderFooterView {
     
+    // MARK: Property
+    
     internal lazy var titleLabel = UILabel()
     internal lazy var arrowButton = UIButton()
-    
     internal weak var delegate: HeaderExpandTableViewDelegate?
+    internal var section: Int = 0
     
     internal var expand: Bool = true {
         didSet {
@@ -31,7 +34,7 @@ class HeaderExpandTableView: UITableViewHeaderFooterView {
         return String(describing: self)
     }
     
-    internal var section: Int = 0
+    // MARK: Overide methods
     
     override func layoutSubviews() {
         super.layoutSubviews()
@@ -44,7 +47,6 @@ class HeaderExpandTableView: UITableViewHeaderFooterView {
         titleLabel.textAlignment = .left
         titleLabel.font = UIFont(name: "Montserrat-Regular", size: 17)
 //        titleLabel.textColor = UIColor.gray
-        
         arrowButton.setImage(#imageLiteral(resourceName: "ic_arrow"), for: .normal)
         arrowButton.tintColor = UIColor.gray
         arrowButton.addTarget(self, action: #selector(collapseAction(_:)), for: .touchUpInside)
@@ -65,6 +67,8 @@ class HeaderExpandTableView: UITableViewHeaderFooterView {
 //        contentView.backgroundColor = UIColor.gray
         addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handelTapGeture)))
     }
+    
+    // MARK: Actions
     
     @objc
     private func handelTapGeture(){
@@ -88,18 +92,13 @@ class HeaderExpandTableView: UITableViewHeaderFooterView {
 }
 
 extension UIView {
+    
     func rotate(_ toValue: CGFloat, duration: CFTimeInterval = 0.2) {
         let animation = CABasicAnimation(keyPath: "transform.rotation")
-        
         animation.toValue = toValue
         animation.duration = duration
         animation.isRemovedOnCompletion = false
         animation.fillMode = kCAFillModeForwards
-        
         self.layer.add(animation, forKey: nil)
-    }
-    
-    static var className: String {
-        return String(describing: self)
     }
 }

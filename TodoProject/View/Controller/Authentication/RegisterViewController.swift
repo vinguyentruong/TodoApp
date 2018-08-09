@@ -33,6 +33,7 @@ class RegisterViewController: BaseTodoViewController {
     override func viewDidLoad() {
         prepareNavigationBar()
         prepareUI()
+        
         super.viewDidLoad()
     }
     
@@ -122,9 +123,15 @@ class RegisterViewController: BaseTodoViewController {
                     return
                 }
                 if success {
-                    sSelf.viewModel.navigator.showAlert(title: "Success", message: "Signup success.", negativeTitle: "Ok", negativeHandler: { (_) in
-                        sSelf.navigationController?.popViewController(animated: true)
-                    })
+                    sSelf.viewModel
+                        .navigator
+                        .showAlert(
+                            title: "Success",
+                            message: "Signup success.",
+                            negativeTitle: "Ok",
+                            negativeHandler: { (_) in
+                                sSelf.dismiss(animated: true, completion: nil)
+                            })
                 }
             }
         )
@@ -222,7 +229,7 @@ extension RegisterViewController {
     
     @objc
     private func handelBackAction() {
-        navigationController?.popViewController(animated: true)
+        self.dismiss(animated: true, completion: nil)
     }
 }
 

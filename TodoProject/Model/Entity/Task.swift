@@ -12,16 +12,24 @@ import Realm
 import SwiftyJSON
 
 enum Status: String {
-    case inprogess
-    case done
+    
+    case inprogess = "in_progress"
+    case done = "done"
+    
+    internal var description: Bool {
+        switch self {
+        case .inprogess:
+            return false
+        default:
+            return true
+        }
+    }
 }
 
-class Task: Object {
+class Task: Entity {
     
     //MARK: Property
     
-    @objc
-    internal dynamic var id: String = ""
     @objc
     internal dynamic var userId: String = ""
     @objc
@@ -31,15 +39,19 @@ class Task: Object {
     @objc
     internal dynamic var deadline: Date = Date()
     @objc
-    internal dynamic var status: String = Status.inprogess.rawValue
+    internal dynamic var rawStatus: String = Status.inprogess.rawValue
     
-    
+    internal var status: Status {
+        if let status = Status(rawValue: rawStatus) {
+            return status
+        }
+        return Status.inprogess
+    }
     
     internal var selected = false
-    internal var done = false
 
     override class func indexedProperties() -> [String] {
-        return ["isSelected", "done"]
+        return ["selected", "status"]
     }
     
     //MARK: Constructor
@@ -58,45 +70,61 @@ class Task: Object {
     
     init(json: JSON) {
         super.init()
-        
         id          = json["id"].stringValue
         name        = json["name"].stringValue
         content     = json["content"].stringValue
-        deadline    = json["deadline"].dateTimeValue
-        status      = json["status"].stringValue
-        done = (status == Status.done.rawValue)
+        deadline    = json["deadline"].dateTime ?? Date()
+        rawStatus   = json["status"].stringValue
+        userId      = json["userId"].stringValue
+        deletedAt   = json["deletedAt"].dateTime
+        createdAt   = json["createdAt"].dateTime
+        updatedAt   = json["updatedAt"].dateTime
     }
     
     init(name: String, date: Date, time: Date, description: String) {
         super.init()
-        self.id = ""
-        self.name = name
-        self.deadline = DateHelper.shared.combineDateWithTime(date: date, time: time) ?? Date()
-        self.content = description
-        self.status = Status.inprogess.rawValue
-        done = false
+        
+        self.id         = ""
+        self.name       = name
+        self.deadline   = DateHelper.shared.combineDateWithTime(date: date, time: time) ?? Date()
+        self.content    = description
     }
     
-    //MARK: overide
-    internal override class func primaryKey() -> String? {
-        return "id"
+    init(id: String, name: String, date: Date, time: Date, description: String, status: Status) {
+        super.init()
+        
+        self.id         = id
+        self.name       = name
+        self.deadline   = DateHelper.shared.combineDateWithTime(date: date, time: time) ?? Date()
+        self.content    = description
     }
     
     //MARK: Internal method
     
-    internal static func getDefault()-> [Task] {
-        if let path = Bundle.main.url(forResource: "Test", withExtension: "plist") {
-            if let data = try? Data(contentsOf: path), let dictionary = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: String]{
-                var jobs:[Task] = []
-                dictionary?.forEach({ (item) in
-                    let model = Task()
-                    model.name = item.value
-                    model.id = UUID().uuidString
-                    jobs.append(model)
-                })
-                return jobs
-            }
-        }
-        return []
+    internal func toJson() -> [String: Any] {
+        var json = [String: Any]()
+        json["id"]          = id
+        json["name"]        = name
+        json["content"]     = content
+        json["deadline"]    = deadline.utcDateTimeString
+        json["status"]      = status.rawValue
+        json["userId"]      = userId
+        return json
+    }
+    
+    // MARK: Overide methods
+    
+    override func copy() -> Any {
+        let task = Task()
+        task.id         = id
+        task.content    = content
+        task.name       = name
+        task.deadline   = deadline
+        task.userId     = userId
+        task.rawStatus  = rawStatus
+        task.createdAt  = createdAt
+        task.deletedAt  = deletedAt
+        task.updatedAt  = updatedAt
+        return task
     }
 }

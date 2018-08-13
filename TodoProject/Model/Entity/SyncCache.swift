@@ -7,6 +7,9 @@
 //
 
 import UIKit
+import Realm
+import RealmSwift
+import SwinjectStoryboard
 
 class SyncCache: Entity {
     
@@ -30,7 +33,28 @@ class SyncCache: Entity {
     }
     
     internal var task: Task? {
-        let taskRepository = TaskRepository()
         return taskRepository.get(withId: taskID)
+    }
+    
+    private var taskRepository: TaskRepository!
+    
+    // MARK: Construction
+    
+    required init() {
+        super.init()
+        
+        taskRepository = SwinjectStoryboard.defaultContainer.resolve(TaskRepository.self)
+    }
+    
+    required init(realm: RLMRealm, schema: RLMObjectSchema) {
+        super.init(realm: realm, schema: schema)
+        
+        taskRepository = SwinjectStoryboard.defaultContainer.resolve(TaskRepository.self)
+    }
+    
+    required init(value: Any, schema: RLMSchema) {
+        super.init(value: value, schema: schema)
+        
+        taskRepository = SwinjectStoryboard.defaultContainer.resolve(TaskRepository.self)
     }
 }

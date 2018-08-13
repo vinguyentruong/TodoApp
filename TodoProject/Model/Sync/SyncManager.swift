@@ -40,13 +40,14 @@ class SyncManager {
         }
     }
     
-    internal static var `default`: SyncManager {
-        let container   = SwinjectStoryboard.defaultContainer
-        let syncManager = container.resolve(SyncManager.self)!
-        return syncManager
-    }
+    internal static let `default` = SyncManager()
     
     //MARK: Construction
+    
+    private convenience init() {
+        let syncManager = SwinjectStoryboard.defaultContainer.resolve(SyncManager.self)!
+        self.init(taskRepository: syncManager.taskRepository, appService: syncManager.appService, jobManager: syncManager.jobManager)
+    }
     
     init(taskRepository: TaskRepository, appService: TodoAppService, jobManager: JobManager) {
         self.taskRepository = taskRepository

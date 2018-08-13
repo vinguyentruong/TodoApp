@@ -30,9 +30,10 @@ extension SwinjectStoryboard {
         }.inObjectScope(.container)
         
         container.register(SyncManager.self, factory: {container in
-            return SyncManager(taskRepository: container.resolve(TaskRepository.self)!,
-                               appService    : container.resolve(TodoAppService.self)!,
-                               jobManager    : container.resolve(JobManager.self)!)
+            let syncManager = SyncManager(taskRepository: container.resolve(TaskRepository.self)!,
+                                          appService    : container.resolve(TodoAppService.self)!,
+                                          jobManager    : container.resolve(JobManager.self)!)
+            return syncManager
         }).inObjectScope(.container)
     }
     
